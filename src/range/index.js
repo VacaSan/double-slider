@@ -19,11 +19,12 @@ export default class {
     this._gBCR = this.component.getBoundingClientRect();
     this._state = {
       min: 0,
-      max: this.toPx(this._max)
+      max: this._toPx(this._max)
     }
 
     this._eventTarget = null;
     this._knob = '';
+    this._currentX = 0;
 
     this._addEventListeners();
   }
@@ -53,7 +54,7 @@ export default class {
     if (!this._eventTarget)
       return;
 
-    this._state[this._knob] = evt.pageX - this._gBCR.left;
+    this._currentX = evt.pageX - this._gBCR.left;
   }
 
   onEnd (evt) {
@@ -70,15 +71,18 @@ export default class {
     if (!this._eventTarget)
       return;
 
-    let currentX = this._state[this._knob];
+    const min = 0;
+    const max = this._toPx(this._max);
 
     // Change rules for each knob
-    if (currentX < 0)
-      currentX = 0;
-    else if (currentX > this.toPx(this._max))
-      currentX = this._gBCR.width;
+    if (this._currentX < min)
+      this._currentX = 0;
+    else if (this._currentX > max)
+      this._currentX = this._gBCR.width;
 
-    this._render();
+    this._setState({
+      [this._knob]: this._currentX
+    });
   }
 
   _render () {
@@ -88,8 +92,13 @@ export default class {
       `translateX(${this._state.min}px) translate(-50%, -50%)`;
   }
 
-  toPx (val) {
+  _toPx (val) {
     return (val / this._max) * this._gBCR.width; //px
+  }
+
+  _setState (obj) {
+    this._state = Object.assign({}, this._state, obj);
+    this._render();
   }
 }
 
