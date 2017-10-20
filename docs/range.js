@@ -91,16 +91,18 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _utils = __webpack_require__(2);
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _class = function () {
-  function _class(id, max) {
+  function _class(id, range) {
     _classCallCheck(this, _class);
 
     // range
-    this._max = max;
+    this._range = range;
 
     // cache DOM
     this.component = document.getElementById(id);
@@ -113,7 +115,8 @@ var _class = function () {
     this.onStart = this.onStart.bind(this);
     this.onMove = this.onMove.bind(this);
     this.onEnd = this.onEnd.bind(this);
-    this.update = this.update.bind(this);
+    this._update = this._update.bind(this);
+    this._checkRange = this._checkRange.bind(this);
 
     this._gBCR = this.component.getBoundingClientRect();
     this._eventTarget = null;
@@ -121,10 +124,11 @@ var _class = function () {
     this._currentX = 0;
     this._state = {
       min: 0,
-      max: this._toPx(this._max)
+      max: this._gBCR.width
     };
 
     this._addEventListeners();
+    this._render();
   }
 
   _createClass(_class, [{
@@ -145,7 +149,7 @@ var _class = function () {
       this._knob = evt.target.getAttribute('data-controls');
       this._eventTarget = this.controls[this._knob];
       this._state[this._knob] = evt.pageX - this._gBCR.left;
-      this.rAF = requestAnimationFrame(this.update);
+      this.rAF = requestAnimationFrame(this._update);
 
       this._eventTarget.classList.add('range__control--active');
     }
@@ -165,14 +169,14 @@ var _class = function () {
       this._eventTarget = null;
     }
   }, {
-    key: 'update',
-    value: function update() {
-      this.rAF = requestAnimationFrame(this.update);
+    key: '_update',
+    value: function _update() {
+      this.rAF = requestAnimationFrame(this._update);
 
       if (!this._eventTarget) return;
 
       var min = this._knob === 'min' ? 0 : this._state.min;
-      var max = this._knob === 'max' ? this._toPx(this._max) : this._state.max;
+      var max = this._knob === 'max' ? this._gBCR.width : this._state.max;
 
       // Change rules for each knob
       if (this._currentX < min) this._currentX = min;else if (this._currentX > max) this._currentX = max;
@@ -195,13 +199,46 @@ var _class = function () {
   }, {
     key: '_toPx',
     value: function _toPx(val) {
-      return val / this._max * this._gBCR.width; //px
+      return val / this._range * this._gBCR.width; //px
     }
   }, {
     key: '_setState',
     value: function _setState(obj) {
-      this._state = Object.assign({}, this._state, obj);
+      var nextState = (0, _utils.map)(obj, this._checkRange);
+      this._state = Object.assign({}, this._state, nextState);
       this._render();
+    }
+
+    // ugliest func ever
+
+  }, {
+    key: '_checkRange',
+    value: function _checkRange(value, key) {
+      if (key === 'min') {
+        if (value < 0) return 0;else if (value > this._state.max) return this._state.max - 1;else return value;
+      } else if (key === 'max') {
+        if (value > this._range) {
+          return this._gBCR.width;
+        } else if (value < this._state.min) return this._state.min + 1;else return value;
+      }
+    }
+  }, {
+    key: 'min',
+    get: function get() {
+      // TODO Transorm px to value
+      return this._state.min;
+    },
+    set: function set(value) {
+      this._setState({ min: this._toPx(value) });
+    }
+  }, {
+    key: 'max',
+    get: function get() {
+      // TODO Transorm px to value
+      return this._state.max;
+    },
+    set: function set(value) {
+      this._setState({ max: this._toPx(value) });
     }
   }]);
 
@@ -209,6 +246,25 @@ var _class = function () {
 }();
 
 exports.default = _class;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.map = map;
+function map(obj, fn) {
+  var res = {};
+  Object.keys(obj).forEach(function (key) {
+    res[key] = fn(obj[key], key);
+  });
+  return res;
+}
 
 /***/ })
 /******/ ]);
