@@ -23,7 +23,6 @@ export default class {
     }
 
     this._eventTarget = null;
-    this._currentX = 0;
     this._knob = '';
 
     this._addEventListeners();
@@ -42,9 +41,9 @@ export default class {
     if (!evt.target.classList.contains('knob'))
       return;
 
-    this._eventTarget = evt.target;
-    this._knob = this._eventTarget.getAttribute('data-controls');
-    this._currentX = evt.pageX - this._gBCR.left;
+    this._knob = evt.target.getAttribute('data-controls');
+    this._eventTarget = this.controls[this._knob];
+    this._state[this._knob] = evt.pageX - this._gBCR.left;
     this.rAF = requestAnimationFrame(this.update);
 
     this._eventTarget.classList.add('range__control--active');
@@ -54,7 +53,7 @@ export default class {
     if (!this._eventTarget)
       return;
 
-    this._currentX = evt.pageX - this._gBCR.left;
+    this._state[this._knob] = evt.pageX - this._gBCR.left;
   }
 
   onEnd (evt) {
@@ -71,14 +70,22 @@ export default class {
     if (!this._eventTarget)
       return;
 
-    // Change rules for each knob
-    if (this._currentX < 0)
-      this._currentX = 0;
-    else if (this._currentX > this.toPx(this._max, this._max, this._gBCR.width))
-      this._currentX = this._gBCR.width;
+    let currentX = this._state[this._knob];
 
-    this._eventTarget.style.transform =
-      `translateX(${this._currentX}px) translate(-50%, -50%)`;
+    // Change rules for each knob
+    if (currentX < 0)
+      currentX = 0;
+    else if (currentX > this.toPx(this._max))
+      currentX = this._gBCR.width;
+
+    this._render();
+  }
+
+  _render () {
+    this.controls.max.style.transform =
+      `translateX(${this._state.max}px) translate(-50%, -50%)`;
+    this.controls.min.style.transform =
+      `translateX(${this._state.min}px) translate(-50%, -50%)`;
   }
 
   toPx (val) {
