@@ -1,2 +1,2 @@
 import Range from './range';
-const slider = new Range('js-range');
+window.slider = new Range('js-range', 500);
