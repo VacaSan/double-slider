@@ -17,14 +17,13 @@ export default class {
     this.update = this.update.bind(this);
 
     this._gBCR = this.component.getBoundingClientRect();
+    this._eventTarget = null;
+    this._knob = '';
+    this._currentX = 0;
     this._state = {
       min: 0,
       max: this._toPx(this._max)
     }
-
-    this._eventTarget = null;
-    this._knob = '';
-    this._currentX = 0;
 
     this._addEventListeners();
   }
@@ -42,6 +41,7 @@ export default class {
     if (!evt.target.classList.contains('knob'))
       return;
 
+    this._currentX = evt.pageX - this._gBCR.left;
     this._knob = evt.target.getAttribute('data-controls');
     this._eventTarget = this.controls[this._knob];
     this._state[this._knob] = evt.pageX - this._gBCR.left;
@@ -71,14 +71,18 @@ export default class {
     if (!this._eventTarget)
       return;
 
-    const min = 0;
-    const max = this._toPx(this._max);
+    const min = (this._knob === 'min')
+      ? 0
+      : this._state.min;
+    const max = (this._knob === 'max')
+      ? this._toPx(this._max)
+      : this._state.max;
 
     // Change rules for each knob
     if (this._currentX < min)
-      this._currentX = 0;
+      this._currentX = min;
     else if (this._currentX > max)
-      this._currentX = this._gBCR.width;
+      this._currentX = max;
 
     this._setState({
       [this._knob]: this._currentX
