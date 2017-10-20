@@ -1,7 +1,7 @@
 import { map } from './utils';
 
 export default class {
-  constructor (id, range) {
+  constructor (id, range, max, min) {
     // range
     this._range = range;
 
@@ -24,8 +24,8 @@ export default class {
     this._knob = '';
     this._currentX = 0;
     this._state = {
-      min: 0,
-      max: this._gBCR.width
+      min: min ? this._toPx(min) : 0,
+      max: max ? this._toPx(max) : this._gBCR.width
     }
 
     this._addEventListeners();
@@ -33,8 +33,7 @@ export default class {
   }
 
   get min () {
-    // TODO Transorm px to value
-    return this._state.min;
+    return this._toValue(this._state.min);
   }
 
   set min (value) {
@@ -42,8 +41,7 @@ export default class {
   }
 
   get max () {
-    // TODO Transorm px to value
-    return this._state.max;
+    return this._toValue(this._state.max);
   }
 
   set max (value) {
@@ -125,6 +123,10 @@ export default class {
 
   _toPx (val) {
     return (val / this._range) * this._gBCR.width; //px
+  }
+
+  _toValue (val) {
+    return (this._range * val) / this._gBCR.width;
   }
 
   _setState (obj) {
