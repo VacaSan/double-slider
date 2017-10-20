@@ -90,10 +90,15 @@ export default class {
   }
 
   _render () {
+    const { max, min } = this._state;
+    const trackWidth = (max - min) / this._gBCR.width;
+
     this.controls.max.style.transform =
-      `translateX(${this._state.max}px) translate(-50%, -50%)`;
+      `translateX(${max}px) translate(-50%, -50%)`;
     this.controls.min.style.transform =
-      `translateX(${this._state.min}px) translate(-50%, -50%)`;
+      `translateX(${min}px) translate(-50%, -50%)`;
+    this.track.style.transform =
+      `translateX(${min}px) scaleX(${trackWidth})`;
   }
 
   _toPx (val) {
