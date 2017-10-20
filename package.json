@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node_modules/.bin/webpack-dev-server -d --hot --watch --open --progress"
+    "start": "node_modules/.bin/webpack-dev-server -d --hot --watch --open --progress",
+    "build": "webpack"
   },
   "author": "",
   "license": "ISC",
