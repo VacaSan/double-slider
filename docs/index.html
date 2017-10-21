@@ -70,10 +70,17 @@
     .range__control--active .range__control-knob {
       transform: scale(1);
     }
+    /* input */
+    .g-input-group {
+      display: flex;
+    }
+    .g-input-group input {
+      margin-right: 14px;
+    }
   </style>
   <div class="wrap">
     <h2>Range Slider</h2>
-
+    <!-- slider -->
     <div class="range" id="js-range">
       <div class="range__track-wrap">
         <div class="range__track js-range__track"></div>
@@ -84,6 +91,22 @@
       <div class="range__control js-knob" data-controls="max">
         <div class="range__control-knob"></div>
       </div>
+    </div>
+    <!-- /slider -->
+
+    <div class="g-input-group">
+      <input
+        class="form-control"
+        id="js-input__min"
+        type="number"
+        placeholder="min"
+      >
+      <input
+        class="form-control"
+        id="js-input__max"
+        type="number"
+        placeholder="max"
+      >
     </div>
   </div>
 

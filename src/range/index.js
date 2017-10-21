@@ -1,4 +1,4 @@
-import { map } from './utils';
+import { map } from '../utils';
 
 class Range {
   constructor (id, props) {
@@ -75,7 +75,7 @@ class Range {
     this._knob = evt.target.getAttribute('data-controls');
     this._eventTarget = this.controls[this._knob];
     this._state[this._knob] = evt.pageX - this._gBCR.left;
-    this.rAF = requestAnimationFrame(this._animate);
+    this._rAF = requestAnimationFrame(this._animate);
 
     this._eventTarget.classList.add('range__control--active');
   }
@@ -94,27 +94,16 @@ class Range {
 
     this._eventTarget.classList.remove('range__control--active');
     this._eventTarget = null;
+    cancelAnimationFrame(this._rAF);
     //TODO check when to call, here or in setState
     this.props.onChange(this.value);
   }
 
   _animate () {
-    this.rAF = requestAnimationFrame(this._animate);
+    this._rAF = requestAnimationFrame(this._animate);
 
     if (!this._eventTarget)
       return;
-
-    const min = (this._knob === 'min')
-      ? 0
-      : this._state.min;
-    const max = (this._knob === 'max')
-      ? this._gBCR.width
-      : this._state.max;
-
-    if (this._currentX < min)
-      this._currentX = min;
-    else if (this._currentX > max)
-      this._currentX = max;
 
     this._setState({
       [this._knob]: this._currentX
@@ -153,16 +142,16 @@ class Range {
       if (value < 0)
         return 0;
       else if (value > this._state.max)
-        return this._state.max - 1;
+        return this._state.max;
       else
         return value;
     }
     else if (key === 'max') {
-      if (value > this._state.range) {
+      if (value > this._gBCR.width) {
         return this._gBCR.width;
       }
       else if (value < this._state.min)
-        return this._state.min + 1;
+        return this._state.min;
       else
         return value;
     }
