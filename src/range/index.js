@@ -1,6 +1,6 @@
 import { map } from './utils';
 
-export default class {
+class Range {
   constructor (id, props) {
     this.props = props;
     // cache DOM
@@ -11,9 +11,9 @@ export default class {
       max: this.component.querySelector('[data-controls="max"]')
     }
 
-    this.onStart = this.onStart.bind(this);
-    this.onMove = this.onMove.bind(this);
-    this.onEnd = this.onEnd.bind(this);
+    this._onStart = this._onStart.bind(this);
+    this._onMove = this._onMove.bind(this);
+    this._onEnd = this._onEnd.bind(this);
     this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
 
@@ -54,20 +54,24 @@ export default class {
   }
 
   _addEventListeners () {
-    // TODO add touch support
-    document.addEventListener('mousedown', this.onStart);
-    document.addEventListener('mousemove', this.onMove);
-    document.addEventListener('mouseup', this.onEnd);
+    document.addEventListener('touchstart', this._onStart);
+    document.addEventListener('touchmove', this._onMove);
+    document.addEventListener('touchend', this._onEnd);
+
+    document.addEventListener('mousedown', this._onStart);
+    document.addEventListener('mousemove', this._onMove);
+    document.addEventListener('mouseup', this._onEnd);
   }
 
-  onStart (evt) {
+  _onStart (evt) {
     if (this._eventTarget)
       return;
 
     if (!evt.target.classList.contains('js-knob'))
       return;
 
-    this._currentX = evt.pageX - this._gBCR.left;
+    const pageX = evt.pageX || evt.touches[0].pageX;
+    this._currentX = pageX - this._gBCR.left;
     this._knob = evt.target.getAttribute('data-controls');
     this._eventTarget = this.controls[this._knob];
     this._state[this._knob] = evt.pageX - this._gBCR.left;
@@ -76,14 +80,15 @@ export default class {
     this._eventTarget.classList.add('range__control--active');
   }
 
-  onMove (evt) {
+  _onMove (evt) {
     if (!this._eventTarget)
       return;
 
-    this._currentX = evt.pageX - this._gBCR.left;
+    const pageX = evt.pageX || evt.touches[0].pageX;
+    this._currentX = pageX - this._gBCR.left;
   }
 
-  onEnd (evt) {
+  _onEnd (evt) {
     if (!this._eventTarget)
       return;
 
@@ -165,3 +170,5 @@ export default class {
       return value;
   }
 }
+
+export default Range;
