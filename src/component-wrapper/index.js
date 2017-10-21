@@ -2,7 +2,9 @@ import Range from '../range';
 
 class ComponentWrapper {
   constructor () {
-    this.range = new Range('js-range', { onChange: this._handleChange.bind(this) });
+    this.range = new Range('js-range', {
+      onChange: this._handleChange.bind(this)
+    });
   }
 
   // interface

@@ -5,7 +5,7 @@ export default class {
     this.props = props;
     // cache DOM
     this.component = document.getElementById(id);
-    this.track = this.component.querySelector('#js-range__track');
+    this.track = this.component.querySelector('.js-range__track');
     this.controls = {
       min: this.component.querySelector('[data-controls="min"]'),
       max: this.component.querySelector('[data-controls="max"]')
@@ -32,6 +32,7 @@ export default class {
     this._render();
   }
 
+  // getters/setters
   get value () {
     return {
       min: Math.round(this._toValue(this._state.min)),
@@ -63,7 +64,7 @@ export default class {
     if (this._eventTarget)
       return;
 
-    if (!evt.target.classList.contains('knob'))
+    if (!evt.target.classList.contains('js-knob'))
       return;
 
     this._currentX = evt.pageX - this._gBCR.left;
