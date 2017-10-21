@@ -1,2 +1,2 @@
-import Range from './range';
-window.slider = new Range('js-range', 500);
+import Component from './component-wrapper';
+window.slider = new Component();

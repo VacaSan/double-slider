@@ -1,10 +1,8 @@
 import { map } from './utils';
 
 export default class {
-  constructor (id, range, max, min) {
-    // range
-    this._range = range;
-
+  constructor (id, props) {
+    this.props = props;
     // cache DOM
     this.component = document.getElementById(id);
     this.track = this.component.querySelector('#js-range__track');
@@ -16,39 +14,46 @@ export default class {
     this.onStart = this.onStart.bind(this);
     this.onMove = this.onMove.bind(this);
     this.onEnd = this.onEnd.bind(this);
-    this._update = this._update.bind(this);
+    this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
 
+    // TODO update on resize
     this._gBCR = this.component.getBoundingClientRect();
     this._eventTarget = null;
     this._knob = '';
     this._currentX = 0;
     this._state = {
-      min: min ? this._toPx(min) : 0,
-      max: max ? this._toPx(max) : this._gBCR.width
+      min: 0,
+      max: this._gBCR.width,
+      range: this._gBCR.width
     }
 
     this._addEventListeners();
     this._render();
   }
 
-  get min () {
-    return this._toValue(this._state.min);
+  get value () {
+    return {
+      min: Math.round(this._toValue(this._state.min)),
+      max: Math.round(this._toValue(this._state.max)),
+      range: this._state.range
+    }
   }
 
-  set min (value) {
-    this._setState({ min: this._toPx(value) });
-  }
+  set value (data) {
+    const range = data.range || this._state.range;
+    const min = data.min ? this._toPx(data.min, range) : this._state.min;
+    const max = data.max ? this._toPx(data.max, range) : this._state.max;
 
-  get max () {
-    return this._toValue(this._state.max);
-  }
-
-  set max (value) {
-    this._setState({ max: this._toPx(value) });
+    this._setState({
+      range,
+      min,
+      max
+    });
   }
 
   _addEventListeners () {
+    // TODO add touch support
     document.addEventListener('mousedown', this.onStart);
     document.addEventListener('mousemove', this.onMove);
     document.addEventListener('mouseup', this.onEnd);
@@ -65,7 +70,7 @@ export default class {
     this._knob = evt.target.getAttribute('data-controls');
     this._eventTarget = this.controls[this._knob];
     this._state[this._knob] = evt.pageX - this._gBCR.left;
-    this.rAF = requestAnimationFrame(this._update);
+    this.rAF = requestAnimationFrame(this._animate);
 
     this._eventTarget.classList.add('range__control--active');
   }
@@ -83,10 +88,12 @@ export default class {
 
     this._eventTarget.classList.remove('range__control--active');
     this._eventTarget = null;
+    //TODO check when to call, here or in setState
+    this.props.onChange(this.value);
   }
 
-  _update () {
-    this.rAF = requestAnimationFrame(this._update);
+  _animate () {
+    this.rAF = requestAnimationFrame(this._animate);
 
     if (!this._eventTarget)
       return;
@@ -98,7 +105,6 @@ export default class {
       ? this._gBCR.width
       : this._state.max;
 
-    // Change rules for each knob
     if (this._currentX < min)
       this._currentX = min;
     else if (this._currentX > max)
@@ -121,12 +127,12 @@ export default class {
       `translateX(${min}px) scaleX(${trackWidth})`;
   }
 
-  _toPx (val) {
-    return (val / this._range) * this._gBCR.width; //px
+  _toPx (val, range) {
+    return (val / range) * this._gBCR.width; //px
   }
 
   _toValue (val) {
-    return (this._range * val) / this._gBCR.width;
+    return (this._state.range * val) / this._gBCR.width;
   }
 
   _setState (obj) {
@@ -146,7 +152,7 @@ export default class {
         return value;
     }
     else if (key === 'max') {
-      if (value > this._range) {
+      if (value > this._state.range) {
         return this._gBCR.width;
       }
       else if (value < this._state.min)
@@ -154,5 +160,7 @@ export default class {
       else
         return value;
     }
+    else
+      return value;
   }
 }
