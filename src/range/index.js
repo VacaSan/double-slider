@@ -1,4 +1,4 @@
-import { map } from '../utils';
+import { map, hasValue } from '../utils';
 
 class Range {
   constructor (id, props) {
@@ -44,7 +44,9 @@ class Range {
 
   set value (data) {
     const range = data.range || this._state.range;
-    const min = data.min ? this._toPx(data.min, range) : this._state.min;
+    const min = hasValue(data.min)
+      ? this._toPx(data.min, range)
+      : this._state.min;
     const max = data.max ? this._toPx(data.max, range) : this._state.max;
 
     this._setState({

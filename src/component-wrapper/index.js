@@ -4,24 +4,24 @@ import { map } from '../utils';
 
 class ComponentWrapper {
   constructor () {
-    this.range = new Range('js-range', {
+    this._range = new Range('js-range', {
       onChange: this._handleChange.bind(this)
     });
-    this.min = new Input('js-input__min', {
+    this._min = new Input('js-input__min', {
       name: 'min',
       onChange: this._handleChange.bind(this)
     });
-    this.max = new Input('js-input__max', {
+    this._max = new Input('js-input__max', {
       name: 'max',
       onChange: this._handleChange.bind(this)
     });
 
     // TMP
-    this.update(450);
+    this.range = 450;
   }
 
   // interface
-  update (range) {
+  set range (range) {
     const rangeNum = parseInt(range, 10);
 
     this._setState({
@@ -29,6 +29,14 @@ class ComponentWrapper {
       max: rangeNum,
       range: rangeNum
     });
+  }
+
+  get range () {
+    const { min, max } = this._state;
+    return {
+      min,
+      max
+    }
   }
 
   _handleChange (data) {
@@ -42,9 +50,9 @@ class ComponentWrapper {
   }
 
   _render () {
-    this.range.value = this._state;
-    this.min.value = this._state.min;
-    this.max.value = this._state.max;
+    this._range.value = this._state;
+    this._min.value = this._state.min;
+    this._max.value = this._state.max;
   }
 
   // TODO figure out how to do this better

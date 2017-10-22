@@ -5,3 +5,7 @@ export function map (obj, fn) {
   });
   return res;
 }
+
+export function hasValue (value) {
+  return value !== null && value !== undefined;
+}
