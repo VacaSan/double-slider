@@ -34,8 +34,8 @@ class ComponentWrapper {
   get range () {
     const { min, max } = this._state;
     return {
-      min,
-      max
+      min: parseInt(min, 10),
+      max: parseInt(max, 10)
     }
   }
 
