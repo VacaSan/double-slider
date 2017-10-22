@@ -11,11 +11,12 @@ class Range {
       max: this.component.querySelector('[data-controls="max"]')
     }
 
-    this._onStart = this._onStart.bind(this);
-    this._onMove = this._onMove.bind(this);
-    this._onEnd = this._onEnd.bind(this);
     this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
+    this._onEnd = this._onEnd.bind(this);
+    this._onMove = this._onMove.bind(this);
+    this._onResize = this._onResize.bind(this);
+    this._onStart = this._onStart.bind(this);
 
     // TODO update on resize
     this._gBCR = this.component.getBoundingClientRect();
@@ -54,6 +55,8 @@ class Range {
   }
 
   _addEventListeners () {
+    window.addEventListener('resize', this._onResize);
+
     document.addEventListener('touchstart', this._onStart);
     document.addEventListener('touchmove', this._onMove);
     document.addEventListener('touchend', this._onEnd);
@@ -63,6 +66,7 @@ class Range {
     document.addEventListener('mouseup', this._onEnd);
   }
 
+  // event handlerse
   _onStart (evt) {
     if (this._eventTarget)
       return;
@@ -97,6 +101,13 @@ class Range {
     cancelAnimationFrame(this._rAF);
     //TODO check when to call, here or in setState
     this.props.onChange(this.value);
+  }
+
+  _onResize () {
+    clearTimeout(this._resizeTimer);
+    this._resizeTimer = setTimeout(_ => {
+      this._gBCR = this.component.getBoundingClientRect();
+    }, 250);
   }
 
   _animate () {
