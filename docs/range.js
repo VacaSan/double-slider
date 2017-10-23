@@ -74,12 +74,17 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.map = map;
+exports.hasValue = hasValue;
 function map(obj, fn) {
   var res = {};
   Object.keys(obj).forEach(function (key) {
     res[key] = fn(obj[key], key);
   });
   return res;
+}
+
+function hasValue(value) {
+  return value !== null && value !== undefined;
 }
 
 /***/ }),
@@ -128,37 +133,26 @@ var ComponentWrapper = function () {
   function ComponentWrapper() {
     _classCallCheck(this, ComponentWrapper);
 
-    this.range = new _range2.default('js-range', {
+    this._range = new _range2.default('js-range', {
       onChange: this._handleChange.bind(this)
     });
-    this.min = new _input2.default('js-input__min', {
+    this._min = new _input2.default('js-input__min', {
       name: 'min',
       onChange: this._handleChange.bind(this)
     });
-    this.max = new _input2.default('js-input__max', {
+    this._max = new _input2.default('js-input__max', {
       name: 'max',
       onChange: this._handleChange.bind(this)
     });
 
     // TMP
-    this.update(450);
+    this.range = 450;
   }
 
   // interface
 
 
   _createClass(ComponentWrapper, [{
-    key: 'update',
-    value: function update(range) {
-      var rangeNum = parseInt(range, 10);
-
-      this._setState({
-        min: 0,
-        max: rangeNum,
-        range: rangeNum
-      });
-    }
-  }, {
     key: '_handleChange',
     value: function _handleChange(data) {
       var nextState = (0, _utils.map)(data, this._checkRange.bind(this));
@@ -173,9 +167,9 @@ var ComponentWrapper = function () {
   }, {
     key: '_render',
     value: function _render() {
-      this.range.value = this._state;
-      this.min.value = this._state.min;
-      this.max.value = this._state.max;
+      this._range.value = this._state;
+      this._min.value = this._state.min;
+      this._max.value = this._state.max;
     }
 
     // TODO figure out how to do this better
@@ -190,6 +184,27 @@ var ComponentWrapper = function () {
           return this._state.range;
         } else if (value < this._state.min) return this._state.min;else return value;
       } else return value;
+    }
+  }, {
+    key: 'range',
+    set: function set(range) {
+      var rangeNum = parseInt(range, 10);
+
+      this._setState({
+        min: 0,
+        max: rangeNum,
+        range: rangeNum
+      });
+    },
+    get: function get() {
+      var _state = this._state,
+          min = _state.min,
+          max = _state.max;
+
+      return {
+        min: parseInt(min, 10),
+        max: parseInt(max, 10)
+      };
     }
   }]);
 
@@ -230,11 +245,12 @@ var Range = function () {
       max: this.component.querySelector('[data-controls="max"]')
     };
 
-    this._onStart = this._onStart.bind(this);
-    this._onMove = this._onMove.bind(this);
-    this._onEnd = this._onEnd.bind(this);
     this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
+    this._onEnd = this._onEnd.bind(this);
+    this._onMove = this._onMove.bind(this);
+    this._onResize = this._onResize.bind(this);
+    this._onStart = this._onStart.bind(this);
 
     // TODO update on resize
     this._gBCR = this.component.getBoundingClientRect();
@@ -257,6 +273,8 @@ var Range = function () {
   _createClass(Range, [{
     key: '_addEventListeners',
     value: function _addEventListeners() {
+      window.addEventListener('resize', this._onResize);
+
       document.addEventListener('touchstart', this._onStart);
       document.addEventListener('touchmove', this._onMove);
       document.addEventListener('touchend', this._onEnd);
@@ -265,6 +283,9 @@ var Range = function () {
       document.addEventListener('mousemove', this._onMove);
       document.addEventListener('mouseup', this._onEnd);
     }
+
+    // event handlerse
+
   }, {
     key: '_onStart',
     value: function _onStart(evt) {
@@ -299,6 +320,16 @@ var Range = function () {
       cancelAnimationFrame(this._rAF);
       //TODO check when to call, here or in setState
       this.props.onChange(this.value);
+    }
+  }, {
+    key: '_onResize',
+    value: function _onResize() {
+      var _this = this;
+
+      clearTimeout(this._resizeTimer);
+      this._resizeTimer = setTimeout(function (_) {
+        _this._gBCR = _this.component.getBoundingClientRect();
+      }, 250);
     }
   }, {
     key: '_animate',
@@ -364,7 +395,7 @@ var Range = function () {
     },
     set: function set(data) {
       var range = data.range || this._state.range;
-      var min = data.min ? this._toPx(data.min, range) : this._state.min;
+      var min = (0, _utils.hasValue)(data.min) ? this._toPx(data.min, range) : this._state.min;
       var max = data.max ? this._toPx(data.max, range) : this._state.max;
 
       this._setState({
