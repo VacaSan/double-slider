@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,21 +70,33 @@
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.map = map;
-exports.hasValue = hasValue;
-function map(obj, fn) {
-  var res = {};
-  Object.keys(obj).forEach(function (key) {
-    res[key] = fn(obj[key], key);
-  });
-  return res;
-}
+var _range = __webpack_require__(1);
 
-function hasValue(value) {
-  return value !== null && value !== undefined;
+var _range2 = _interopRequireDefault(_range);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var slider = new _range2.default({
+  id: 'js-range',
+  onEnd: onEnd
+});
+
+var $inputs = $('input.js-range-input');
+$inputs.on('input', onInput);
+
+function onEnd(data) {
+  $inputs.each(function () {
+    var target = $(this);
+    var controls = target.attr('data-controls');
+    target.val(data[controls]);
+  });
+};
+
+function onInput() {
+  var controls = $(this).attr('data-controls');
+  slider.value = _defineProperty({}, controls, this.value);
 }
 
 /***/ }),
@@ -94,156 +106,47 @@ function hasValue(value) {
 "use strict";
 
 
-var _componentWrapper = __webpack_require__(2);
-
-var _componentWrapper2 = _interopRequireDefault(_componentWrapper);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-window.slider = new _componentWrapper2.default();
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _range = __webpack_require__(3);
-
-var _range2 = _interopRequireDefault(_range);
-
-var _input = __webpack_require__(4);
-
-var _input2 = _interopRequireDefault(_input);
-
-var _utils = __webpack_require__(0);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ComponentWrapper = function () {
-  function ComponentWrapper() {
-    _classCallCheck(this, ComponentWrapper);
-
-    this._range = new _range2.default('js-range', {
-      onChange: this._handleChange.bind(this)
-    });
-    this._min = new _input2.default('js-input__min', {
-      name: 'min',
-      onChange: this._handleChange.bind(this)
-    });
-    this._max = new _input2.default('js-input__max', {
-      name: 'max',
-      onChange: this._handleChange.bind(this)
-    });
-
-    // TMP
-    this.range = 450;
-  }
-
-  // interface
-
-
-  _createClass(ComponentWrapper, [{
-    key: '_handleChange',
-    value: function _handleChange(data) {
-      var nextState = (0, _utils.map)(data, this._checkRange.bind(this));
-      this._setState(nextState);
-    }
-  }, {
-    key: '_setState',
-    value: function _setState(obj) {
-      this._state = Object.assign({}, this._state, obj);
-      this._render();
-    }
-  }, {
-    key: '_render',
-    value: function _render() {
-      this._range.value = this._state;
-      this._min.value = this._state.min;
-      this._max.value = this._state.max;
-    }
-
-    // TODO figure out how to do this better
-
-  }, {
-    key: '_checkRange',
-    value: function _checkRange(value, key) {
-      if (key === 'min') {
-        if (value < 0) return 0;else if (value > this._state.max) return this._state.max;else return value;
-      } else if (key === 'max') {
-        if (value > this._state.range) {
-          return this._state.range;
-        } else if (value < this._state.min) return this._state.min;else return value;
-      } else return value;
-    }
-  }, {
-    key: 'range',
-    set: function set(range) {
-      var rangeNum = parseInt(range, 10);
-
-      this._setState({
-        min: 0,
-        max: rangeNum,
-        range: rangeNum
-      });
-    },
-    get: function get() {
-      var _state = this._state,
-          min = _state.min,
-          max = _state.max;
-
-      return {
-        min: parseInt(min, 10),
-        max: parseInt(max, 10)
-      };
-    }
-  }]);
-
-  return ComponentWrapper;
-}();
-
-exports.default = ComponentWrapper;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _utils = __webpack_require__(0);
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Range = function () {
-  function Range(id, props) {
+  _createClass(Range, null, [{
+    key: '_template',
+    value: function _template() {
+      var color = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '#3F51B5';
+
+      return '\n      <style>\n        .range {\n          position: relative;\n          width: 100%;\n          height: 48px;\n        }\n        .range__track-wrap {\n          position: absolute;\n          top: 50%;\n          width: 100%;\n          height: 2px;\n          background-color: rgba(0, 0, 0, .26);\n          transform: translateY(-50%);\n          overflow: hidden;\n        }\n        .range__track {\n          position: absolute;\n          width: 100%;\n          height: 100%;\n          transform-origin: left top;\n          background-color: ' + color + ';\n          transform: scaleX(0) translateX(0);\n        }\n        .range__control {\n          position: absolute;\n          display: flex;\n          justify-content: center;\n          align-items: center;\n          top: 50%;\n          left: 0;\n          width: 42px;\n          height: 42px;\n          background-color: transparent;\n          transform: translateX(0) translate(-50%, -50%);\n          cursor: pointer;\n          user-select: none;\n        }\n        .range__control-knob {\n          width: 21px;\n          height: 21px;\n          border-radius: 50%;\n          background-color: ' + color + ';\n          transform: scale(0.571);\n          transition: transform 100ms ease-out;\n          pointer-events: none;\n          will-change: transfrom;\n        }\n        .range__control--active .range__control-knob {\n          transform: scale(1);\n        }\n      </style>\n      <div class="range">\n        <div class="range__track-wrap">\n          <div class="range__track js-range__track"></div>\n        </div>\n        <div class="range__control js-knob" data-controls="min">\n          <div class="range__control-knob"></div>\n        </div>\n        <div class="range__control js-knob" data-controls="max">\n          <div class="range__control-knob"></div>\n        </div>\n      </div>\n    ';
+    }
+  }, {
+    key: 'map',
+    value: function map(obj, fn) {
+      var res = {};
+      Object.keys(obj).forEach(function (key) {
+        res[key] = fn(obj[key], key);
+      });
+      return res;
+    }
+  }, {
+    key: 'hasValue',
+    value: function hasValue(value) {
+      return value !== null && value !== undefined;
+    }
+  }]);
+
+  function Range(props) {
     _classCallCheck(this, Range);
 
     this.props = props;
-    // cache DOM
-    this.component = document.getElementById(id);
-    this.track = this.component.querySelector('.js-range__track');
-    this.controls = {
-      min: this.component.querySelector('[data-controls="min"]'),
-      max: this.component.querySelector('[data-controls="max"]')
-    };
+    // init
+    this.component = document.getElementById(props.id);
+    this.component.innerHTML = Range._template(props.color);
 
     this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
@@ -252,25 +155,32 @@ var Range = function () {
     this._onResize = this._onResize.bind(this);
     this._onStart = this._onStart.bind(this);
 
-    // TODO update on resize
     this._gBCR = this.component.getBoundingClientRect();
     this._eventTarget = null;
     this._knob = '';
     this._currentX = 0;
+
     this._state = {
       min: 0,
       max: this._gBCR.width,
       range: this._gBCR.width
     };
 
+    this._cacheDOM();
     this._addEventListeners();
     this._render();
   }
 
-  // getters/setters
-
-
   _createClass(Range, [{
+    key: '_cacheDOM',
+    value: function _cacheDOM() {
+      this.track = this.component.querySelector('.js-range__track');
+      this.controls = {
+        min: this.component.querySelector('[data-controls="min"]'),
+        max: this.component.querySelector('[data-controls="max"]')
+      };
+    }
+  }, {
     key: '_addEventListeners',
     value: function _addEventListeners() {
       window.addEventListener('resize', this._onResize);
@@ -284,10 +194,13 @@ var Range = function () {
       document.addEventListener('mouseup', this._onEnd);
     }
 
-    // event handlerse
+    // getters/setters
 
   }, {
     key: '_onStart',
+
+
+    // event handlerse
     value: function _onStart(evt) {
       if (this._eventTarget) return;
 
@@ -301,6 +214,7 @@ var Range = function () {
       this._rAF = requestAnimationFrame(this._animate);
 
       this._eventTarget.classList.add('range__control--active');
+      if (this.props.onStart !== undefined) this.props.onStart(this.value);
     }
   }, {
     key: '_onMove',
@@ -309,6 +223,7 @@ var Range = function () {
 
       var pageX = evt.pageX || evt.touches[0].pageX;
       this._currentX = pageX - this._gBCR.left;
+      if (this.props.onMove !== undefined) this.props.onMove(this.value);
     }
   }, {
     key: '_onEnd',
@@ -318,8 +233,8 @@ var Range = function () {
       this._eventTarget.classList.remove('range__control--active');
       this._eventTarget = null;
       cancelAnimationFrame(this._rAF);
-      //TODO check when to call, here or in setState
-      this.props.onChange(this.value);
+
+      if (this.props.onEnd !== undefined) this.props.onEnd(this.value);
     }
   }, {
     key: '_onResize',
@@ -331,6 +246,9 @@ var Range = function () {
         _this._gBCR = _this.component.getBoundingClientRect();
       }, 250);
     }
+
+    // utils
+
   }, {
     key: '_animate',
     value: function _animate() {
@@ -366,7 +284,7 @@ var Range = function () {
   }, {
     key: '_setState',
     value: function _setState(obj) {
-      var nextState = (0, _utils.map)(obj, this._checkRange);
+      var nextState = Range.map(obj, this._checkRange);
       this._state = Object.assign({}, this._state, nextState);
       this._render();
     }
@@ -395,7 +313,7 @@ var Range = function () {
     },
     set: function set(data) {
       var range = data.range || this._state.range;
-      var min = (0, _utils.hasValue)(data.min) ? this._toPx(data.min, range) : this._state.min;
+      var min = Range.hasValue(data.min) ? this._toPx(data.min, range) : this._state.min;
       var max = data.max ? this._toPx(data.max, range) : this._state.max;
 
       this._setState({
@@ -410,64 +328,6 @@ var Range = function () {
 }();
 
 exports.default = Range;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Input = function () {
-  function Input(id, props) {
-    _classCallCheck(this, Input);
-
-    this.component = document.getElementById(id);
-    this.props = props;
-
-    this._handleInput = this._handleInput.bind(this);
-
-    this._addEventListeners();
-  }
-
-  _createClass(Input, [{
-    key: '_addEventListeners',
-    value: function _addEventListeners() {
-      this.component.addEventListener('input', this._handleInput);
-    }
-  }, {
-    key: '_handleInput',
-    value: function _handleInput(evt) {
-      var value = parseInt(evt.target.value);
-
-      if (Number.isNaN(value)) return;
-
-      this.props.onChange(_defineProperty({}, this.props.name, evt.target.value));
-    }
-  }, {
-    key: 'value',
-    set: function set(val) {
-      this.component.value = val;
-    },
-    get: function get() {
-      return this.component.value;
-    }
-  }]);
-
-  return Input;
-}();
-
-exports.default = Input;
 
 /***/ })
 /******/ ]);
