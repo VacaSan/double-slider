@@ -1,21 +1,22 @@
 import Slider from './range';
-import Mediator from './mediator';
 
-const mediator = new Mediator();
-
-const slider = new Slider('js-range', mediator);
+const slider = new Slider({
+  id: 'js-range',
+  onEnd: onEnd
+});
 
 const $inputs = $('input.js-range-input');
+$inputs.on('input', onInput);
 
-mediator.subscribe('onend', data => {
+function onEnd (data) {
   $inputs.each(function () {
     const target = $(this);
     const controls = target.attr('data-controls');
     target.val(data[controls]);
   })
-});
+};
 
-$inputs.on('input', function () {
+function onInput () {
   const controls = $(this).attr('data-controls');
   slider.value = { [controls]: this.value }
-});
+}

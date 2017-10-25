@@ -1,5 +1,3 @@
-import { map, hasValue } from '../utils';
-
 class Range {
   static _template (color = '#3F51B5') {
     return `
@@ -68,11 +66,23 @@ class Range {
     `;
   }
 
-  constructor (id, mediator, color) {
-    this.mediator = mediator;
+  static map (obj, fn) {
+    const res = {};
+    Object.keys(obj).forEach(key => {
+      res[key] = fn(obj[key], key);
+    });
+    return res;
+  }
+
+  static hasValue (value) {
+    return value !== null && value !== undefined;
+  }
+
+  constructor (props) {
+    this.props = props;
     // init
-    this.component = document.getElementById(id);
-    this.component.innerHTML = Range._template(color);
+    this.component = document.getElementById(props.id);
+    this.component.innerHTML = Range._template(props.color);
 
     this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
@@ -128,7 +138,7 @@ class Range {
 
   set value (data) {
     const range = data.range || this._state.range;
-    const min = hasValue(data.min)
+    const min = Range.hasValue(data.min)
       ? this._toPx(data.min, range)
       : this._state.min;
     const max = data.max ? this._toPx(data.max, range) : this._state.max;
@@ -156,7 +166,8 @@ class Range {
     this._rAF = requestAnimationFrame(this._animate);
 
     this._eventTarget.classList.add('range__control--active');
-    this.mediator.publish('onstart', this.value);
+    if (this.props.onStart !== undefined)
+      this.props.onStart(this.value);
   }
 
   _onMove (evt) {
@@ -165,7 +176,8 @@ class Range {
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
-    // this.mediator.publish('onmove', this.value);
+    if (this.props.onMove !== undefined)
+      this.props.onMove(this.value);
   }
 
   _onEnd (evt) {
@@ -175,8 +187,9 @@ class Range {
     this._eventTarget.classList.remove('range__control--active');
     this._eventTarget = null;
     cancelAnimationFrame(this._rAF);
-    //TODO check when to call, here or in setState
-    this.mediator.publish('onend', this.value);
+
+    if (this.props.onEnd !== undefined)
+      this.props.onEnd(this.value);
   }
 
   _onResize () {
@@ -219,7 +232,7 @@ class Range {
   }
 
   _setState (obj) {
-    let nextState = map(obj, this._checkRange);
+    let nextState = Range.map(obj, this._checkRange);
     this._state = Object.assign({}, this._state, nextState);
     this._render();
   }
