@@ -124,20 +124,6 @@ var Range = function () {
 
       return '\n      <style>\n        .range {\n          position: relative;\n          width: 100%;\n          height: 48px;\n        }\n        .range__track-wrap {\n          position: absolute;\n          top: 50%;\n          width: 100%;\n          height: 2px;\n          background-color: rgba(0, 0, 0, .26);\n          transform: translateY(-50%);\n          overflow: hidden;\n        }\n        .range__track {\n          position: absolute;\n          width: 100%;\n          height: 100%;\n          transform-origin: left top;\n          background-color: ' + color + ';\n          transform: scaleX(0) translateX(0);\n        }\n        .range__control {\n          position: absolute;\n          display: flex;\n          justify-content: center;\n          align-items: center;\n          top: 50%;\n          left: 0;\n          width: 42px;\n          height: 42px;\n          background-color: transparent;\n          transform: translateX(0) translate(-50%, -50%);\n          cursor: pointer;\n          user-select: none;\n        }\n        .range__control-knob {\n          width: 21px;\n          height: 21px;\n          border-radius: 50%;\n          background-color: ' + color + ';\n          transform: scale(0.571);\n          transition: transform 100ms ease-out;\n          pointer-events: none;\n          will-change: transfrom;\n        }\n        .range__control--active .range__control-knob {\n          transform: scale(1);\n        }\n      </style>\n      <div class="range">\n        <div class="range__track-wrap">\n          <div class="range__track js-range__track"></div>\n        </div>\n        <div class="range__control js-knob" data-controls="min">\n          <div class="range__control-knob"></div>\n        </div>\n        <div class="range__control js-knob" data-controls="max">\n          <div class="range__control-knob"></div>\n        </div>\n      </div>\n    ';
     }
-  }, {
-    key: 'map',
-    value: function map(obj, fn) {
-      var res = {};
-      Object.keys(obj).forEach(function (key) {
-        res[key] = fn(obj[key], key);
-      });
-      return res;
-    }
-  }, {
-    key: 'hasValue',
-    value: function hasValue(value) {
-      return value !== null && value !== undefined;
-    }
   }]);
 
   function Range(props) {
@@ -321,6 +307,20 @@ var Range = function () {
         min: min,
         max: max
       });
+    }
+  }], [{
+    key: 'map',
+    value: function map(obj, fn) {
+      var res = {};
+      Object.keys(obj).forEach(function (key) {
+        res[key] = fn(obj[key], key);
+      });
+      return res;
+    }
+  }, {
+    key: 'hasValue',
+    value: function hasValue(value) {
+      return value !== null && value !== undefined;
     }
   }]);
 

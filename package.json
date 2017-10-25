@@ -2,12 +2,12 @@
   "name": "range-slider",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/range.js",
   "scripts": {
     "start": "node_modules/.bin/webpack-dev-server -d --hot --watch --open --progress",
     "build": "webpack"
   },
-  "author": "",
+  "author": "Vladan Kotarac",
   "license": "ISC",
   "devDependencies": {
     "babel-core": "^6.26.0",
