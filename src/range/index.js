@@ -66,18 +66,6 @@ class Range {
     `;
   }
 
-  static map (obj, fn) {
-    const res = {};
-    Object.keys(obj).forEach(key => {
-      res[key] = fn(obj[key], key);
-    });
-    return res;
-  }
-
-  static hasValue (value) {
-    return value !== null && value !== undefined;
-  }
-
   constructor (props) {
     this.props = props;
     // init
@@ -258,6 +246,18 @@ class Range {
     }
     else
       return value;
+  }
+
+  static map (obj, fn) {
+    const res = {};
+    Object.keys(obj).forEach(key => {
+      res[key] = fn(obj[key], key);
+    });
+    return res;
+  }
+
+  static hasValue (value) {
+    return value !== null && value !== undefined;
   }
 }
 
