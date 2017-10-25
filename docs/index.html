@@ -11,6 +11,10 @@
     href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
     integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
     crossorigin="anonymous">
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous"></script>
 </head>
 <body>
   <style>
@@ -20,55 +24,6 @@
     .wrap {
       width: 360px;
       margin: 0 auto;
-    }
-    .range {
-      position: relative;
-      width: 100%;
-      height: 48px;
-    }
-    .range__track-wrap {
-      position: absolute;
-      top: 50%;
-      width: 100%;
-      height: 2px;
-      background-color: rgba(0, 0, 0, .26);
-      transform: translateY(-50%);
-      overflow: hidden;
-    }
-    .range__track {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      transform-origin: left top;
-      background-color: #3F51B5;
-      transform: scaleX(0) translateX(0);
-    }
-    .range__control {
-      position: absolute;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      top: 50%;
-      left: 0;
-      width: 42px;
-      height: 42px;
-      background-color: transparent;
-      transform: translateX(0) translate(-50%, -50%);
-      cursor: pointer;
-      user-select: none;
-    }
-    .range__control-knob {
-      width: 21px;
-      height: 21px;
-      border-radius: 50%;
-      background-color: #3F51B5;
-      transform: scale(0.571);
-      transition: transform 100ms ease-out;
-      pointer-events: none;
-      will-change: transfrom;
-    }
-    .range__control--active .range__control-knob {
-      transform: scale(1);
     }
     /* input */
     .g-input-group {
@@ -81,29 +36,19 @@
   <div class="wrap">
     <h2>Range Slider</h2>
     <!-- slider -->
-    <div class="range" id="js-range">
-      <div class="range__track-wrap">
-        <div class="range__track js-range__track"></div>
-      </div>
-      <div class="range__control js-knob" data-controls="min">
-        <div class="range__control-knob"></div>
-      </div>
-      <div class="range__control js-knob" data-controls="max">
-        <div class="range__control-knob"></div>
-      </div>
-    </div>
+    <div id="js-range"></div>
     <!-- /slider -->
 
     <div class="g-input-group">
       <input
-        class="form-control"
-        id="js-input__min"
+        class="form-control js-range-input"
+        data-controls="min"
         type="number"
         placeholder="min"
       >
       <input
-        class="form-control"
-        id="js-input__max"
+        class="form-control js-range-input"
+        data-controls="max"
         type="number"
         placeholder="max"
       >
