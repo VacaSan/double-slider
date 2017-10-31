@@ -2,7 +2,7 @@
   "name": "range-slider",
   "version": "1.0.0",
   "description": "",
-  "main": "src/range.js",
+  "main": "lib/range.js",
   "scripts": {
     "start": "node_modules/.bin/webpack-dev-server -d --hot --watch --open --progress",
     "build": "webpack"
