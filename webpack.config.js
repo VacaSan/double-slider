@@ -5,7 +5,7 @@ module.exports = {
   entry: './src/index.js',
   output: {
     filename: 'range.js',
-    path: path.resolve(__dirname, './docs')
+    path: path.resolve(__dirname, './lib')
   },
   module: {
     rules: [
@@ -14,8 +14,5 @@ module.exports = {
         use: 'babel-loader'
       }
     ]
-  },
-  devServer: {
-    contentBase: path.resolve(__dirname, './docs'),
-  },
+  }
 }
