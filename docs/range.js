@@ -70,6 +70,42 @@
 "use strict";
 
 
+var _range = __webpack_require__(1);
+
+var _range2 = _interopRequireDefault(_range);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var slider = new _range2.default({
+  id: 'js-range',
+  onEnd: onEnd
+});
+
+var $inputs = $('input.js-range-input');
+$inputs.on('input', onInput);
+
+function onEnd(data) {
+  $inputs.each(function () {
+    var target = $(this);
+    var controls = target.attr('data-controls');
+    target.val(data[controls]);
+  });
+};
+
+function onInput() {
+  var controls = $(this).attr('data-controls');
+  slider.value = _defineProperty({}, controls, this.value);
+}
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
