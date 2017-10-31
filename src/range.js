@@ -1,57 +1,60 @@
 class Range {
-  static _template (color = '#3F51B5') {
+  static get styles () {
     return `
-      <style>
-        .range {
-          position: relative;
-          width: 100%;
-          height: 48px;
-        }
-        .range__track-wrap {
-          position: absolute;
-          top: 50%;
-          width: 100%;
-          height: 2px;
-          background-color: rgba(0, 0, 0, .26);
-          transform: translateY(-50%);
-          overflow: hidden;
-        }
-        .range__track {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          transform-origin: left top;
-          background-color: ${color};
-          transform: scaleX(0) translateX(0);
-        }
-        .range__control {
-          position: absolute;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          top: 50%;
-          left: 0;
-          width: 42px;
-          height: 42px;
-          background-color: transparent;
-          transform: translateX(0) translate(-50%, -50%);
-          cursor: pointer;
-          user-select: none;
-        }
-        .range__control-knob {
-          width: 21px;
-          height: 21px;
-          border-radius: 50%;
-          background-color: ${color};
-          transform: scale(0.571);
-          transition: transform 100ms ease-out;
-          pointer-events: none;
-          will-change: transfrom;
-        }
-        .range__control--active .range__control-knob {
-          transform: scale(1);
-        }
-      </style>
+      .range {
+        position: relative;
+        width: 100%;
+        height: 48px;
+      }
+      .range__track-wrap {
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        height: 2px;
+        background-color: rgba(0, 0, 0, .26);
+        transform: translateY(-50%);
+        overflow: hidden;
+      }
+      .range__track {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-origin: left top;
+        background-color: var(--range-color, #3F51B5);
+        transform: scaleX(0) translateX(0);
+      }
+      .range__control {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 50%;
+        left: 0;
+        width: 42px;
+        height: 42px;
+        background-color: transparent;
+        transform: translateX(0) translate(-50%, -50%);
+        cursor: pointer;
+        user-select: none;
+      }
+      .range__control-knob {
+        width: 21px;
+        height: 21px;
+        border-radius: 50%;
+        background-color: var(--range-color, #3F51B5);
+        transform: scale(0.571);
+        transition: transform 100ms ease-out;
+        pointer-events: none;
+        will-change: transform;
+      }
+      .range__control--active .range__control-knob {
+        transform: scale(1);
+      }
+    `;
+  }
+
+  static get template () {
+    return `
       <div class="range">
         <div class="range__track-wrap">
           <div class="range__track js-range__track"></div>
@@ -68,9 +71,6 @@ class Range {
 
   constructor (props) {
     this.props = props;
-    // init
-    this.component = document.getElementById(props.id);
-    this.component.innerHTML = Range._template(props.color);
 
     this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
@@ -79,20 +79,29 @@ class Range {
     this._onResize = this._onResize.bind(this);
     this._onStart = this._onStart.bind(this);
 
+    this._init(props.id);
+    this._setInitialState();
+    this._cacheDOM();
+    this._addEventListeners();
+    this._render();
+  }
+
+  _init (id) {
+    this.component = document.getElementById(id);
+    this.component.innerHTML = Range.template;
+    const style = document.createElement('style');
+    style.innerHTML = Range.styles;
+    document.head.appendChild(style);
+  }
+
+  _setInitialState () {
     this._gBCR = this.component.getBoundingClientRect();
-    this._eventTarget = null;
-    this._knob = '';
-    this._currentX = 0;
 
     this._state = {
       min: 0,
       max: this._gBCR.width,
       range: this._gBCR.width
     }
-
-    this._cacheDOM();
-    this._addEventListeners();
-    this._render();
   }
 
   _cacheDOM () {
@@ -154,6 +163,7 @@ class Range {
     this._rAF = requestAnimationFrame(this._animate);
 
     this._eventTarget.classList.add('range__control--active');
+
     if (this.props.onStart !== undefined)
       this.props.onStart(this.value);
   }
@@ -164,6 +174,7 @@ class Range {
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
+
     if (this.props.onMove !== undefined)
       this.props.onMove(this.value);
   }
@@ -180,6 +191,7 @@ class Range {
       this.props.onEnd(this.value);
   }
 
+  // utils
   _onResize () {
     clearTimeout(this._resizeTimer);
     this._resizeTimer = setTimeout(_ => {
@@ -187,7 +199,6 @@ class Range {
     }, 250);
   }
 
-  // utils
   _animate () {
     this._rAF = requestAnimationFrame(this._animate);
 
