@@ -1,4 +1,4 @@
-class Range {
+class RangeSlider {
   static get styles () {
     return `
       .range {
@@ -78,19 +78,31 @@ class Range {
     this._onMove = this._onMove.bind(this);
     this._onResize = this._onResize.bind(this);
     this._onStart = this._onStart.bind(this);
+    this._addEventListeners = this._addEventListeners.bind(this);
+    this._removeEventListeners = this._removeEventListeners.bind(this);
 
     this._init(props.id);
     this._setInitialState();
     this._cacheDOM();
-    this._addEventListeners();
     this._render();
   }
 
   _init (id) {
     this.component = document.getElementById(id);
-    this.component.innerHTML = Range.template;
+    this.component.innerHTML = RangeSlider.template;
+
+    window.addEventListener('resize', this._onResize);
+    this.component.addEventListener('touchstart', this._onStart);
+    this.component.addEventListener('mousedown', this._onStart);
+
+    const hasStyles = document.getElementById('js-range-styles');
+
+    if (hasStyles)
+      return;
+
     const style = document.createElement('style');
-    style.innerHTML = Range.styles;
+    style.id = 'js-range-styles';
+    style.innerHTML = RangeSlider.styles;
     document.head.appendChild(style);
   }
 
@@ -113,15 +125,21 @@ class Range {
   }
 
   _addEventListeners () {
-    window.addEventListener('resize', this._onResize);
-
-    document.addEventListener('touchstart', this._onStart);
     document.addEventListener('touchmove', this._onMove);
     document.addEventListener('touchend', this._onEnd);
+    document.addEventListener('touchcancel', this._onEnd);
 
-    document.addEventListener('mousedown', this._onStart);
     document.addEventListener('mousemove', this._onMove);
     document.addEventListener('mouseup', this._onEnd);
+  }
+
+  _removeEventListeners () {
+    document.removeEventListener('touchmove', this._onMove);
+    document.removeEventListener('touchend', this._onEnd);
+    document.removeEventListener('touchcancel', this._onEnd);
+
+    document.removeEventListener('mousemove', this._onMove);
+    document.removeEventListener('mouseup', this._onEnd);
   }
 
   // getters/setters
@@ -135,7 +153,7 @@ class Range {
 
   set value (data) {
     const range = data.range || this._state.range;
-    const min = Range.hasValue(data.min)
+    const min = RangeSlider.hasValue(data.min)
       ? this._toPx(data.min, range)
       : this._state.min;
     const max = data.max ? this._toPx(data.max, range) : this._state.max;
@@ -154,6 +172,8 @@ class Range {
 
     if (!evt.target.classList.contains('js-knob'))
       return;
+
+    this._addEventListeners();
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
@@ -186,6 +206,8 @@ class Range {
     this._eventTarget.classList.remove('range__control--active');
     this._eventTarget = null;
     cancelAnimationFrame(this._rAF);
+
+    this._removeEventListeners();
 
     if (this.props.onEnd !== undefined)
       this.props.onEnd(this.value);
@@ -231,7 +253,7 @@ class Range {
   }
 
   _setState (obj) {
-    let nextState = Range.map(obj, this._checkRange);
+    let nextState = RangeSlider.map(obj, this._checkRange);
     this._state = Object.assign({}, this._state, nextState);
     this._render();
   }
@@ -272,4 +294,4 @@ class Range {
   }
 }
 
-export default Range;
+export default RangeSlider;
