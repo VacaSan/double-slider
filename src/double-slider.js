@@ -1,4 +1,4 @@
-class RangeSlider {
+class DoubleSlider {
   static get styles () {
     return `
       .range {
@@ -89,7 +89,7 @@ class RangeSlider {
 
   _init (id) {
     this.component = document.getElementById(id);
-    this.component.innerHTML = RangeSlider.template;
+    this.component.innerHTML = DoubleSlider.template;
 
     window.addEventListener('resize', this._onResize);
     this.component.addEventListener('touchstart', this._onStart);
@@ -102,7 +102,7 @@ class RangeSlider {
 
     const style = document.createElement('style');
     style.id = 'js-range-styles';
-    style.innerHTML = RangeSlider.styles;
+    style.innerHTML = DoubleSlider.styles;
     document.head.appendChild(style);
   }
 
@@ -153,7 +153,7 @@ class RangeSlider {
 
   set value (data) {
     const range = data.range || this._state.range;
-    const min = RangeSlider.hasValue(data.min)
+    const min = DoubleSlider.hasValue(data.min)
       ? this._toPx(data.min, range)
       : this._state.min;
     const max = data.max ? this._toPx(data.max, range) : this._state.max;
@@ -253,7 +253,7 @@ class RangeSlider {
   }
 
   _setState (obj) {
-    let nextState = RangeSlider.map(obj, this._checkRange);
+    let nextState = DoubleSlider.map(obj, this._checkRange);
     this._state = Object.assign({}, this._state, nextState);
     this._render();
   }
@@ -294,4 +294,4 @@ class RangeSlider {
   }
 }
 
-export default RangeSlider;
+export default DoubleSlider;

@@ -1,14 +1,14 @@
 {
-  "name": "range-slider",
+  "name": "double-slider",
   "version": "1.0.0",
-  "description": "",
-  "main": "lib/range.js",
+  "description": "A simple two-thumb slider component",
+  "main": "lib/double-slider.js",
   "scripts": {
     "start": "node_modules/.bin/webpack-dev-server -d --hot --watch --open --progress",
     "build": "webpack"
   },
   "author": "Vladan Kotarac",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",

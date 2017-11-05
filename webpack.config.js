@@ -2,9 +2,9 @@ const webpack = require('webpack');
 const path = require('path');
 
 const libConfig = {
-  entry: './src/range.js',
+  entry: './src/double-slider.js',
   output: {
-    filename: 'range.js',
+    filename: 'double-slider.js',
     path: path.resolve(__dirname, './lib')
   },
   module: {
@@ -20,7 +20,7 @@ const libConfig = {
 const docsConfig = {
   entry: './src/index.js',
   output: {
-    filename: 'range.js',
+    filename: 'double-slider.js',
     path: path.resolve(__dirname, './docs')
   },
   module: {

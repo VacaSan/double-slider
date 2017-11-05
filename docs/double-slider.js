@@ -70,6 +70,21 @@
 "use strict";
 
 
+var _doubleSlider = __webpack_require__(1);
+
+var _doubleSlider2 = _interopRequireDefault(_doubleSlider);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+window.DoubleSlider = _doubleSlider2.default;
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -80,8 +95,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var RangeSlider = function () {
-  _createClass(RangeSlider, null, [{
+var DoubleSlider = function () {
+  _createClass(DoubleSlider, null, [{
     key: 'styles',
     get: function get() {
       return '\n      .range {\n        position: relative;\n        width: 100%;\n        height: 48px;\n      }\n      .range__track-wrap {\n        position: absolute;\n        top: 50%;\n        width: 100%;\n        height: 2px;\n        background-color: rgba(0, 0, 0, .26);\n        transform: translateY(-50%);\n        overflow: hidden;\n      }\n      .range__track {\n        position: absolute;\n        width: 100%;\n        height: 100%;\n        transform-origin: left top;\n        background-color: var(--range-color, #3F51B5);\n        transform: scaleX(0) translateX(0);\n      }\n      .range__control {\n        position: absolute;\n        display: flex;\n        justify-content: center;\n        align-items: center;\n        top: 50%;\n        left: 0;\n        width: 42px;\n        height: 42px;\n        background-color: transparent;\n        transform: translateX(0) translate(-50%, -50%);\n        cursor: pointer;\n        user-select: none;\n      }\n      .range__control-knob {\n        width: 21px;\n        height: 21px;\n        border-radius: 50%;\n        background-color: var(--range-color, #3F51B5);\n        transform: scale(0.571);\n        transition: transform 100ms ease-out;\n        pointer-events: none;\n        will-change: transform;\n      }\n      .range__control--active .range__control-knob {\n        transform: scale(1);\n      }\n    ';
@@ -93,8 +108,8 @@ var RangeSlider = function () {
     }
   }]);
 
-  function RangeSlider(props) {
-    _classCallCheck(this, RangeSlider);
+  function DoubleSlider(props) {
+    _classCallCheck(this, DoubleSlider);
 
     this.props = props;
 
@@ -113,11 +128,11 @@ var RangeSlider = function () {
     this._render();
   }
 
-  _createClass(RangeSlider, [{
+  _createClass(DoubleSlider, [{
     key: '_init',
     value: function _init(id) {
       this.component = document.getElementById(id);
-      this.component.innerHTML = RangeSlider.template;
+      this.component.innerHTML = DoubleSlider.template;
 
       window.addEventListener('resize', this._onResize);
       this.component.addEventListener('touchstart', this._onStart);
@@ -129,7 +144,7 @@ var RangeSlider = function () {
 
       var style = document.createElement('style');
       style.id = 'js-range-styles';
-      style.innerHTML = RangeSlider.styles;
+      style.innerHTML = DoubleSlider.styles;
       document.head.appendChild(style);
     }
   }, {
@@ -269,7 +284,7 @@ var RangeSlider = function () {
   }, {
     key: '_setState',
     value: function _setState(obj) {
-      var nextState = RangeSlider.map(obj, this._checkRange);
+      var nextState = DoubleSlider.map(obj, this._checkRange);
       this._state = Object.assign({}, this._state, nextState);
       this._render();
     }
@@ -298,7 +313,7 @@ var RangeSlider = function () {
     },
     set: function set(data) {
       var range = data.range || this._state.range;
-      var min = RangeSlider.hasValue(data.min) ? this._toPx(data.min, range) : this._state.min;
+      var min = DoubleSlider.hasValue(data.min) ? this._toPx(data.min, range) : this._state.min;
       var max = data.max ? this._toPx(data.max, range) : this._state.max;
 
       this._setState({
@@ -323,10 +338,10 @@ var RangeSlider = function () {
     }
   }]);
 
-  return RangeSlider;
+  return DoubleSlider;
 }();
 
-exports.default = RangeSlider;
+exports.default = DoubleSlider;
 
 /***/ })
 /******/ ]);

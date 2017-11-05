@@ -1,3 +1,3 @@
-import RangeSlider from './range';
+import DoubleSlider from './double-slider';
 
-window.RangeSlider = RangeSlider;
+window.DoubleSlider = DoubleSlider;
