@@ -4,7 +4,7 @@ A simple two-thumb slider component.
 
 ## Demo
 
-https://vacasan.github.io/range-slider/
+https://vacasan.github.io/double-slider/
 
 ## Install
 
