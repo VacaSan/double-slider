@@ -7,6 +7,10 @@
     "start": "node_modules/.bin/webpack-dev-server -d --hot --watch --open --progress",
     "build": "webpack"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VacaSan/double-slider.git"
+  },
   "author": "Vladan Kotarac",
   "license": "MIT",
   "devDependencies": {
