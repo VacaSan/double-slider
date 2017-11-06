@@ -1,6 +1,6 @@
 {
   "name": "double-slider",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple two-thumb slider component",
   "main": "lib/double-slider.js",
   "scripts": {
