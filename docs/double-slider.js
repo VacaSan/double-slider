@@ -342,6 +342,7 @@ var DoubleSlider = function () {
 }();
 
 exports.default = DoubleSlider;
+module.exports = exports['default'];
 
 /***/ })
 /******/ ]);
