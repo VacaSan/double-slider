@@ -42,6 +42,12 @@ const mySlider = new DoubleSlider({ id: 'my-slider' });
 `onEnd: function` (*optional*)
   Function to be called on drag end. Receives a `value` object as an argument.
 
+`color: string` (*optional*)
+  Define the color of the component (defaults to #3F51B5).
+
+`inverse: bool` (*optional*)
+  Set to `true`, for usage on dark backgrounds (defaults to `false`).
+
 ```js
 const mySlider = new DoubleSlider({
   id: 'my-slider',
