@@ -1,8 +1,5 @@
 class DoubleSlider {
-  static styles (
-    color = '#3F51B5',
-    inverse = false
-  ) {
+  static get styles () {
     return `
       .range {
         position: relative;
@@ -14,10 +11,7 @@ class DoubleSlider {
         top: 50%;
         width: 100%;
         height: 2px;
-        background-color: ${inverse
-          ? 'rgba(255, 255, 255, .5)'
-          : 'rgba(0, 0, 0, .26)'
-        };
+        background-color: rgba(0, 0, 0, .26);
         transform: translateY(-50%);
         overflow: hidden;
       }
@@ -26,7 +20,7 @@ class DoubleSlider {
         width: 100%;
         height: 100%;
         transform-origin: left top;
-        background-color: ${color};
+        background-color: #3F51B5;
         transform: scaleX(0) translateX(0);
       }
       .range__control {
@@ -47,7 +41,7 @@ class DoubleSlider {
         width: 21px;
         height: 21px;
         border-radius: 50%;
-        background-color: ${color};
+        background-color: #3F51B5;
         transform: scale(0.571);
         transition: transform 100ms ease-out;
         pointer-events: none;
@@ -59,17 +53,29 @@ class DoubleSlider {
     `;
   }
 
-  static get template () {
+  static template (color, inverse) {
     return `
       <div class="range">
-        <div class="range__track-wrap">
-          <div class="range__track js-range__track"></div>
+        <div
+          class="range__track-wrap"
+          ${inverse && `style="background-color: rgba(255, 255, 255, .5);"`}
+        >
+          <div
+            class="range__track js-range__track"
+            ${color && `style="background-color: ${color};"`}
+          ></div>
         </div>
         <div class="range__control js-knob" data-controls="min">
-          <div class="range__control-knob"></div>
+          <div
+            class="range__control-knob"
+            ${color && `style="background-color: ${color};"`}
+          ></div>
         </div>
         <div class="range__control js-knob" data-controls="max">
-          <div class="range__control-knob"></div>
+          <div
+            class="range__control-knob"
+            ${color && `style="background-color: ${color};"`}
+          ></div>
         </div>
       </div>
     `;
@@ -95,7 +101,7 @@ class DoubleSlider {
 
   _init ({ id, color, inverse }) {
     this.component = document.getElementById(id);
-    this.component.innerHTML = DoubleSlider.template;
+    this.component.innerHTML = DoubleSlider.template(color, inverse);
 
     window.addEventListener('resize', this._onResize);
     this.component.addEventListener('touchstart', this._onStart);
@@ -108,7 +114,7 @@ class DoubleSlider {
 
     const style = document.createElement('style');
     style.id = 'js-range-styles';
-    style.innerHTML = DoubleSlider.styles(color, inverse);
+    style.innerHTML = DoubleSlider.styles;
     document.head.appendChild(style);
   }
 
