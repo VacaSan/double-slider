@@ -98,8 +98,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var DoubleSlider = function () {
   _createClass(DoubleSlider, null, [{
     key: 'styles',
-    get: function get() {
-      return '\n      .range {\n        position: relative;\n        width: 100%;\n        height: 48px;\n      }\n      .range__track-wrap {\n        position: absolute;\n        top: 50%;\n        width: 100%;\n        height: 2px;\n        background-color: rgba(0, 0, 0, .26);\n        transform: translateY(-50%);\n        overflow: hidden;\n      }\n      .range__track {\n        position: absolute;\n        width: 100%;\n        height: 100%;\n        transform-origin: left top;\n        background-color: var(--range-color, #3F51B5);\n        transform: scaleX(0) translateX(0);\n      }\n      .range__control {\n        position: absolute;\n        display: flex;\n        justify-content: center;\n        align-items: center;\n        top: 50%;\n        left: 0;\n        width: 42px;\n        height: 42px;\n        background-color: transparent;\n        transform: translateX(0) translate(-50%, -50%);\n        cursor: pointer;\n        user-select: none;\n      }\n      .range__control-knob {\n        width: 21px;\n        height: 21px;\n        border-radius: 50%;\n        background-color: var(--range-color, #3F51B5);\n        transform: scale(0.571);\n        transition: transform 100ms ease-out;\n        pointer-events: none;\n        will-change: transform;\n      }\n      .range__control--active .range__control-knob {\n        transform: scale(1);\n      }\n    ';
+    value: function styles() {
+      var color = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '#3F51B5';
+      var inverse = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+      return '\n      .range {\n        position: relative;\n        width: 100%;\n        height: 48px;\n      }\n      .range__track-wrap {\n        position: absolute;\n        top: 50%;\n        width: 100%;\n        height: 2px;\n        background-color: ' + (inverse ? 'rgba(255, 255, 255, .5)' : 'rgba(0, 0, 0, .26)') + ';\n        transform: translateY(-50%);\n        overflow: hidden;\n      }\n      .range__track {\n        position: absolute;\n        width: 100%;\n        height: 100%;\n        transform-origin: left top;\n        background-color: ' + color + ';\n        transform: scaleX(0) translateX(0);\n      }\n      .range__control {\n        position: absolute;\n        display: flex;\n        justify-content: center;\n        align-items: center;\n        top: 50%;\n        left: 0;\n        width: 42px;\n        height: 42px;\n        background-color: transparent;\n        transform: translateX(0) translate(-50%, -50%);\n        cursor: pointer;\n        user-select: none;\n      }\n      .range__control-knob {\n        width: 21px;\n        height: 21px;\n        border-radius: 50%;\n        background-color: ' + color + ';\n        transform: scale(0.571);\n        transition: transform 100ms ease-out;\n        pointer-events: none;\n        will-change: transform;\n      }\n      .range__control--active .range__control-knob {\n        transform: scale(1);\n      }\n    ';
     }
   }, {
     key: 'template',
@@ -122,7 +125,7 @@ var DoubleSlider = function () {
     this._addEventListeners = this._addEventListeners.bind(this);
     this._removeEventListeners = this._removeEventListeners.bind(this);
 
-    this._init(props.id);
+    this._init(props);
     this._setInitialState();
     this._cacheDOM();
     this._render();
@@ -130,7 +133,11 @@ var DoubleSlider = function () {
 
   _createClass(DoubleSlider, [{
     key: '_init',
-    value: function _init(id) {
+    value: function _init(_ref) {
+      var id = _ref.id,
+          color = _ref.color,
+          inverse = _ref.inverse;
+
       this.component = document.getElementById(id);
       this.component.innerHTML = DoubleSlider.template;
 
@@ -144,7 +151,7 @@ var DoubleSlider = function () {
 
       var style = document.createElement('style');
       style.id = 'js-range-styles';
-      style.innerHTML = DoubleSlider.styles;
+      style.innerHTML = DoubleSlider.styles(color, inverse);
       document.head.appendChild(style);
     }
   }, {
