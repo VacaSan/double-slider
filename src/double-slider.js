@@ -1,5 +1,8 @@
 class DoubleSlider {
-  static get styles () {
+  static styles (
+    color = '#3F51B5',
+    inverse = false
+  ) {
     return `
       .range {
         position: relative;
@@ -11,7 +14,10 @@ class DoubleSlider {
         top: 50%;
         width: 100%;
         height: 2px;
-        background-color: rgba(0, 0, 0, .26);
+        background-color: ${inverse
+          ? 'rgba(255, 255, 255, .5)'
+          : 'rgba(0, 0, 0, .26)'
+        };
         transform: translateY(-50%);
         overflow: hidden;
       }
@@ -20,7 +26,7 @@ class DoubleSlider {
         width: 100%;
         height: 100%;
         transform-origin: left top;
-        background-color: var(--range-color, #3F51B5);
+        background-color: ${color};
         transform: scaleX(0) translateX(0);
       }
       .range__control {
@@ -41,7 +47,7 @@ class DoubleSlider {
         width: 21px;
         height: 21px;
         border-radius: 50%;
-        background-color: var(--range-color, #3F51B5);
+        background-color: ${color};
         transform: scale(0.571);
         transition: transform 100ms ease-out;
         pointer-events: none;
@@ -81,13 +87,13 @@ class DoubleSlider {
     this._addEventListeners = this._addEventListeners.bind(this);
     this._removeEventListeners = this._removeEventListeners.bind(this);
 
-    this._init(props.id);
+    this._init(props);
     this._setInitialState();
     this._cacheDOM();
     this._render();
   }
 
-  _init (id) {
+  _init ({ id, color, inverse }) {
     this.component = document.getElementById(id);
     this.component.innerHTML = DoubleSlider.template;
 
@@ -102,7 +108,7 @@ class DoubleSlider {
 
     const style = document.createElement('style');
     style.id = 'js-range-styles';
-    style.innerHTML = DoubleSlider.styles;
+    style.innerHTML = DoubleSlider.styles(color, inverse);
     document.head.appendChild(style);
   }
 
