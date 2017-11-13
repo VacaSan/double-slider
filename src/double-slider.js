@@ -208,6 +208,8 @@ class DoubleSlider {
 
     this._eventTarget.classList.add('range__control--active');
 
+    evt.preventDefault();
+
     if (this.props.onStart !== undefined)
       this.props.onStart(this.value);
   }
