@@ -25,8 +25,20 @@ class DoubleSlider {
       }
       .range__control {
         position: absolute;
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
         display: flex;
+        -webkit-box-pack: center;
+        -moz-box-pack: center;
+        -webkit-justify-content: center;
+        -ms-flex-pack: center;
         justify-content: center;
+        -webkit-box-align: center;
+        -moz-box-align: center;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
         align-items: center;
         top: 50%;
         left: 0;
