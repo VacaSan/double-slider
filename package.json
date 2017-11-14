@@ -4,7 +4,7 @@
   "description": "A simple two-thumb slider component",
   "main": "lib/double-slider.js",
   "scripts": {
-    "start": "node_modules/.bin/webpack-dev-server -d --hot --watch --open --progress",
+    "start": "webpack --watch",
     "build": "webpack"
   },
   "repository": {

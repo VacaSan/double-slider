@@ -203,7 +203,8 @@ class DoubleSlider {
     this._currentX = pageX - this._gBCR.left;
     this._knob = evt.target.getAttribute('data-controls');
     this._eventTarget = this.controls[this._knob];
-    this._state[this._knob] = evt.pageX - this._gBCR.left;
+    // this._state[this._knob] = evt.pageX - this._gBCR.left;
+    this._state[this._knob] = this._currentX;
     this._rAF = requestAnimationFrame(this._animate);
 
     this._eventTarget.classList.add('range__control--active');
