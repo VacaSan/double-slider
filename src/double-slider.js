@@ -199,11 +199,13 @@ class DoubleSlider {
 
     this._addEventListeners();
 
-    const pageX = evt.pageX || evt.touches[0].pageX;
-    this._currentX = pageX - this._gBCR.left;
     this._knob = evt.target.getAttribute('data-controls');
     this._eventTarget = this.controls[this._knob];
-    // this._state[this._knob] = evt.pageX - this._gBCR.left;
+    this._gBCR = this.component.getBoundingClientRect();
+
+    const pageX = evt.pageX || evt.touches[0].pageX;
+    this._left = this._eventTarget.offsetLeft;
+    this._currentX = pageX - this._gBCR.left;
     this._state[this._knob] = this._currentX;
     this._rAF = requestAnimationFrame(this._animate);
 
