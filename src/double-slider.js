@@ -135,8 +135,8 @@ class DoubleSlider {
 
     this._state = {
       min: 0,
-      max: this._gBCR.width,
-      range: this._gBCR.width
+      max: 1,
+      range: 10
     }
   }
 
@@ -168,19 +168,23 @@ class DoubleSlider {
 
   // getters/setters
   get value () {
+    const { min, max, range } = this._state;
+
     return {
-      min: Math.round(this._toValue(this._state.min)),
-      max: Math.round(this._toValue(this._state.max)),
-      range: this._state.range
+      min: Math.round(range * min),
+      max: Math.round(range * max),
+      range
     }
   }
 
   set value (data) {
+    const { width } = this._gBCR;
+
     const range = data.range || this._state.range;
     const min = DoubleSlider.hasValue(data.min)
-      ? this._toPx(data.min, range)
+      ? (data.min / range)
       : this._state.min;
-    const max = data.max ? this._toPx(data.max, range) : this._state.max;
+    const max = data.max ? (data.max / range) : this._state.max;
 
     this._setState({
       range,
@@ -206,7 +210,7 @@ class DoubleSlider {
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._left = this._eventTarget.offsetLeft;
     this._currentX = pageX - this._gBCR.left;
-    this._state[this._knob] = this._currentX;
+
     this._rAF = requestAnimationFrame(this._animate);
 
     this._eventTarget.classList.add('range__control--active');
@@ -247,6 +251,7 @@ class DoubleSlider {
     clearTimeout(this._resizeTimer);
     this._resizeTimer = setTimeout(_ => {
       this._gBCR = this.component.getBoundingClientRect();
+      this._render();
     }, 250);
   }
 
@@ -257,28 +262,20 @@ class DoubleSlider {
       return;
 
     this._setState({
-      [this._knob]: this._currentX
+      [this._knob]: this._currentX / this._gBCR.width
     });
   }
 
   _render () {
+    const { width } = this._gBCR;
     const { max, min } = this._state;
-    const trackWidth = (max - min) / this._gBCR.width;
 
     this.controls.max.style.transform =
-      `translateX(${max}px) translate(-50%, -50%)`;
+      `translateX(${max * width}px) translate(-50%, -50%)`;
     this.controls.min.style.transform =
-      `translateX(${min}px) translate(-50%, -50%)`;
+      `translateX(${min * width}px) translate(-50%, -50%)`;
     this.track.style.transform =
-      `translateX(${min}px) scaleX(${trackWidth})`;
-  }
-
-  _toPx (val, range) {
-    return (val / range) * this._gBCR.width; //px
-  }
-
-  _toValue (val) {
-    return (this._state.range * val) / this._gBCR.width;
+      `translateX(${min * width}px) scaleX(${max - min})`;
   }
 
   _setState (obj) {
@@ -298,8 +295,8 @@ class DoubleSlider {
         return value;
     }
     else if (key === 'max') {
-      if (value > this._gBCR.width) {
-        return this._gBCR.width;
+      if (value > 1) {
+        return 1;
       }
       else if (value < this._state.min)
         return this._state.min;
