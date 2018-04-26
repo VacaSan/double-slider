@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>range-slider</title>
+  <link rel="stylesheet" href="double-slider.css">
   <!-- Latest compiled and minified CSS -->
   <link
     rel="stylesheet"
@@ -37,7 +38,18 @@
   <div class="wrap">
     <h2>Range Slider</h2>
     <!-- slider -->
-    <div id="js-range"></div>
+
+    <div class="double-slider" id="double-slider">
+      <div class="double-slider_track-wrap">
+        <div class="double-slider_track js-double-slider_track"></div>
+      </div>
+      <div class="double-slider_control js-knob" data-controls="min">
+        <div class="double-slider_control-knob"></div>
+      </div>
+      <div class="double-slider_control js-knob" data-controls="max">
+        <div class="double-slider_control-knob"></div>
+      </div>
+    </div>
     <!-- /slider -->
 
     <div class="g-input-group">
@@ -61,10 +73,7 @@
   <script src="./double-slider.js"></script>
   <script>
 
-    const slider = new DoubleSlider({
-      id: 'js-range',
-      onEnd: onEnd
-    });
+    const slider = new DoubleSlider(document.getElementById('double-slider'));
 
     const $inputs = $('input.js-range-input');
     $inputs.on('input', onInput);

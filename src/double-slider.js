@@ -1,100 +1,6 @@
 class DoubleSlider {
-  static get styles () {
-    return `
-      .range {
-        position: relative;
-        width: 100%;
-        height: 48px;
-      }
-      .range__track-wrap {
-        position: absolute;
-        top: 50%;
-        width: 100%;
-        height: 2px;
-        background-color: rgba(0, 0, 0, .26);
-        transform: translateY(-50%);
-        overflow: hidden;
-      }
-      .range__track {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        transform-origin: left top;
-        background-color: #3F51B5;
-        transform: scaleX(0) translateX(0);
-      }
-      .range__control {
-        position: absolute;
-        display: -webkit-box;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-pack: center;
-        -moz-box-pack: center;
-        -webkit-justify-content: center;
-        -ms-flex-pack: center;
-        justify-content: center;
-        -webkit-box-align: center;
-        -moz-box-align: center;
-        -ms-flex-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        top: 50%;
-        left: 0;
-        width: 42px;
-        height: 42px;
-        background-color: transparent;
-        transform: translateX(0) translate(-50%, -50%);
-        cursor: pointer;
-        user-select: none;
-      }
-      .range__control-knob {
-        width: 21px;
-        height: 21px;
-        border-radius: 50%;
-        background-color: #3F51B5;
-        transform: scale(0.571);
-        transition: transform 100ms ease-out;
-        pointer-events: none;
-        will-change: transform;
-      }
-      .range__control--active .range__control-knob {
-        transform: scale(1);
-      }
-    `;
-  }
-
-  static template (color, inverse) {
-    return `
-      <div class="range">
-        <div
-          class="range__track-wrap"
-          ${inverse && `style="background-color: rgba(255, 255, 255, .5);"`}
-        >
-          <div
-            class="range__track js-range__track"
-            ${color && `style="background-color: ${color};"`}
-          ></div>
-        </div>
-        <div class="range__control js-knob" data-controls="min">
-          <div
-            class="range__control-knob"
-            ${color && `style="background-color: ${color};"`}
-          ></div>
-        </div>
-        <div class="range__control js-knob" data-controls="max">
-          <div
-            class="range__control-knob"
-            ${color && `style="background-color: ${color};"`}
-          ></div>
-        </div>
-      </div>
-    `;
-  }
-
-  constructor (props) {
-    this.props = props;
+  constructor (root) {
+    this.root = root;
 
     this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
@@ -105,33 +11,20 @@ class DoubleSlider {
     this._addEventListeners = this._addEventListeners.bind(this);
     this._removeEventListeners = this._removeEventListeners.bind(this);
 
-    this._init(props);
+    this._init();
     this._setInitialState();
     this._cacheDOM();
     this._render();
   }
 
-  _init ({ id, color, inverse }) {
-    this.component = document.getElementById(id);
-    this.component.innerHTML = DoubleSlider.template(color, inverse);
-
+  _init () {
     window.addEventListener('resize', this._onResize);
-    this.component.addEventListener('touchstart', this._onStart);
-    this.component.addEventListener('mousedown', this._onStart);
-
-    const hasStyles = document.getElementById('js-range-styles');
-
-    if (hasStyles)
-      return;
-
-    const style = document.createElement('style');
-    style.id = 'js-range-styles';
-    style.innerHTML = DoubleSlider.styles;
-    document.head.appendChild(style);
+    this.root.addEventListener('touchstart', this._onStart);
+    this.root.addEventListener('mousedown', this._onStart);
   }
 
   _setInitialState () {
-    this._gBCR = this.component.getBoundingClientRect();
+    this._gBCR = this.root.getBoundingClientRect();
 
     this._state = {
       min: 0,
@@ -141,10 +34,10 @@ class DoubleSlider {
   }
 
   _cacheDOM () {
-    this.track = this.component.querySelector('.js-range__track');
+    this.track = this.root.querySelector('.js-double-slider_track');
     this.controls = {
-      min: this.component.querySelector('[data-controls="min"]'),
-      max: this.component.querySelector('[data-controls="max"]')
+      min: this.root.querySelector('[data-controls="min"]'),
+      max: this.root.querySelector('[data-controls="max"]')
     }
   }
 
@@ -205,7 +98,7 @@ class DoubleSlider {
 
     this._knob = evt.target.getAttribute('data-controls');
     this._eventTarget = this.controls[this._knob];
-    this._gBCR = this.component.getBoundingClientRect();
+    this._gBCR = this.root.getBoundingClientRect();
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._left = this._eventTarget.offsetLeft;
@@ -213,12 +106,9 @@ class DoubleSlider {
 
     this._rAF = requestAnimationFrame(this._animate);
 
-    this._eventTarget.classList.add('range__control--active');
+    this._eventTarget.classList.add('double-slider_control--active');
 
     evt.preventDefault();
-
-    if (this.props.onStart !== undefined)
-      this.props.onStart(this.value);
   }
 
   _onMove (evt) {
@@ -227,30 +117,24 @@ class DoubleSlider {
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
-
-    if (this.props.onMove !== undefined)
-      this.props.onMove(this.value);
   }
 
   _onEnd (evt) {
     if (!this._eventTarget)
       return;
 
-    this._eventTarget.classList.remove('range__control--active');
+    this._eventTarget.classList.remove('double-slider_control--active');
     this._eventTarget = null;
     cancelAnimationFrame(this._rAF);
 
     this._removeEventListeners();
-
-    if (this.props.onEnd !== undefined)
-      this.props.onEnd(this.value);
   }
 
   // utils
   _onResize () {
     clearTimeout(this._resizeTimer);
     this._resizeTimer = setTimeout(_ => {
-      this._gBCR = this.component.getBoundingClientRect();
+      this._gBCR = this.root.getBoundingClientRect();
       this._render();
     }, 250);
   }
