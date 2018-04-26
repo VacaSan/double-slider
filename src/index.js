@@ -1,3 +1,3 @@
-import DoubleSlider from "./double-slider";
+const DoubleSlider = require('./double-slider');
 
 window.DoubleSlider = DoubleSlider;

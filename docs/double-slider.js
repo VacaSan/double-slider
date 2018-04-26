@@ -70,13 +70,9 @@
 "use strict";
 
 
-var _doubleSlider = __webpack_require__(1);
+var DoubleSlider = __webpack_require__(1);
 
-var _doubleSlider2 = _interopRequireDefault(_doubleSlider);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-window.DoubleSlider = _doubleSlider2.default;
+window.DoubleSlider = DoubleSlider;
 
 /***/ }),
 /* 1 */
@@ -85,17 +81,19 @@ window.DoubleSlider = _doubleSlider2.default;
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/**
+ * DoubleSlider component
+ */
 var DoubleSlider = function () {
+  /**
+   * @param {Element} root Root node that holds the slider
+   */
   function DoubleSlider(root) {
     _classCallCheck(this, DoubleSlider);
 
@@ -110,30 +108,78 @@ var DoubleSlider = function () {
     this._addEventListeners = this._addEventListeners.bind(this);
     this._removeEventListeners = this._removeEventListeners.bind(this);
 
-    this._init();
-    this._setInitialState();
     this._cacheDOM();
-    this._render();
+    this._bindEvents();
+    this._setInitialState();
   }
 
+  /**
+   * Bind necessary event handlers.
+   * @return {void}
+   */
+
+
   _createClass(DoubleSlider, [{
-    key: '_init',
-    value: function _init() {
+    key: '_bindEvents',
+    value: function _bindEvents() {
       window.addEventListener('resize', this._onResize);
       this.root.addEventListener('touchstart', this._onStart);
       this.root.addEventListener('mousedown', this._onStart);
     }
+
+    /**
+     * Normalizes the number.
+     * @param {number} value Number to be normalized.
+     * @return {number} Normalized value.
+     */
+
+  }, {
+    key: 'normalize',
+    value: function normalize(value) {
+      return value / this._state.range;
+    }
+
+    /**
+     * Denoramlizes the number.
+     * @param {number} value Number to be denormalized.
+     * @return {number} Denormalized value.
+     */
+
+  }, {
+    key: 'denormalize',
+    value: function denormalize(value) {
+      return Math.round(value * this._state.range);
+    }
+
+    /**
+     * Set the initial state of the component
+     * @return {void}
+     */
+
   }, {
     key: '_setInitialState',
     value: function _setInitialState() {
+      this._state = {};
       this._gBCR = this.root.getBoundingClientRect();
+      var _root$dataset = this.root.dataset,
+          min = _root$dataset.min,
+          max = _root$dataset.max,
+          range = _root$dataset.range;
 
-      this._state = {
-        min: 0,
-        max: 1,
-        range: 10
-      };
+
+      this._state.range = range;
+
+      this.setState({
+        min: this.normalize(parseInt(min)),
+        max: this.normalize(parseInt(max))
+      });
     }
+
+    /**
+     * Stores the references to the dom elements
+     * @return {void}
+     */
+
   }, {
     key: '_cacheDOM',
     value: function _cacheDOM() {
@@ -143,6 +189,12 @@ var DoubleSlider = function () {
         max: this.root.querySelector('[data-controls="max"]')
       };
     }
+
+    /**
+     * Attaches the event listeners
+     * @return {void}
+     */
+
   }, {
     key: '_addEventListeners',
     value: function _addEventListeners() {
@@ -153,6 +205,12 @@ var DoubleSlider = function () {
       document.addEventListener('mousemove', this._onMove);
       document.addEventListener('mouseup', this._onEnd);
     }
+
+    /**
+     * Removes the event listeners.
+     * @return {void}
+     */
+
   }, {
     key: '_removeEventListeners',
     value: function _removeEventListeners() {
@@ -164,23 +222,28 @@ var DoubleSlider = function () {
       document.removeEventListener('mouseup', this._onEnd);
     }
 
-    // getters/setters
+    /**
+     * Touchstart event handler.
+     * @param {Event} evt
+     * @return {void}
+     */
 
   }, {
     key: '_onStart',
-
-
-    // event handlerse
     value: function _onStart(evt) {
-      if (this._eventTarget) return;
+      if (this._eventTarget) {
+        return;
+      }
 
-      if (!evt.target.classList.contains('js-knob')) return;
+      if (!evt.target.classList.contains('js-knob')) {
+        return;
+      }
 
       this._addEventListeners();
 
       this._knob = evt.target.getAttribute('data-controls');
       this._eventTarget = this.controls[this._knob];
-      this._gBCR = this.root.getBoundingClientRect();
+      // this._gBCR = this.root.getBoundingClientRect();
 
       var pageX = evt.pageX || evt.touches[0].pageX;
       this._left = this._eventTarget.offsetLeft;
@@ -192,18 +255,36 @@ var DoubleSlider = function () {
 
       evt.preventDefault();
     }
+
+    /**
+     * Touchmove event handler.
+     * @param {Event} evt
+     * @return {void}
+     */
+
   }, {
     key: '_onMove',
     value: function _onMove(evt) {
-      if (!this._eventTarget) return;
+      if (!this._eventTarget) {
+        return;
+      }
 
       var pageX = evt.pageX || evt.touches[0].pageX;
       this._currentX = pageX - this._gBCR.left;
     }
+
+    /**
+    * Touchend event handler.
+    * @param {Event} evt
+    * @return {void}
+    */
+
   }, {
     key: '_onEnd',
     value: function _onEnd(evt) {
-      if (!this._eventTarget) return;
+      if (!this._eventTarget) {
+        return;
+      }
 
       this._eventTarget.classList.remove('double-slider_control--active');
       this._eventTarget = null;
@@ -212,7 +293,10 @@ var DoubleSlider = function () {
       this._removeEventListeners();
     }
 
-    // utils
+    /**
+     * Resize handler.
+     * @return {void}
+     */
 
   }, {
     key: '_onResize',
@@ -220,83 +304,110 @@ var DoubleSlider = function () {
       var _this = this;
 
       clearTimeout(this._resizeTimer);
-      this._resizeTimer = setTimeout(function (_) {
+      this._resizeTimer = setTimeout(function () {
         _this._gBCR = _this.root.getBoundingClientRect();
         _this._render();
       }, 250);
     }
+
+    /**
+     * Updates the state with the current position
+     * @return {void}
+     */
+
   }, {
     key: '_animate',
     value: function _animate() {
       this._rAF = requestAnimationFrame(this._animate);
 
-      if (!this._eventTarget) return;
+      if (!this._eventTarget) {
+        return;
+      }
 
-      this._setState(_defineProperty({}, this._knob, this._currentX / this._gBCR.width));
+      this.setState(_defineProperty({}, this._knob, this._currentX / this._gBCR.width));
     }
+
+    /**
+     * Updates the component
+     * @return {void}
+     */
+
   }, {
     key: '_render',
     value: function _render() {
       var width = this._gBCR.width;
       var _state = this._state,
           max = _state.max,
-          min = _state.min;
+          min = _state.min,
+          range = _state.range;
 
+
+      this.root.dataset.min = this.denormalize(min);
+      this.root.dataset.max = this.denormalize(max);
+      this.root.dataset.range = range;
 
       this.controls.max.style.transform = 'translateX(' + max * width + 'px) translate(-50%, -50%)';
       this.controls.min.style.transform = 'translateX(' + min * width + 'px) translate(-50%, -50%)';
       this.track.style.transform = 'translateX(' + min * width + 'px) scaleX(' + (max - min) + ')';
     }
+
+    /**
+     * Updates the current state of the component
+     * @param {Object} data State object
+     * @param {number} data.min Min value.
+     * @param {number} data.max Max value.
+     * @param {number} data.range Range value.
+     */
+
   }, {
-    key: '_setState',
-    value: function _setState(obj) {
-      var nextState = DoubleSlider.map(obj, this._checkRange);
+    key: 'setState',
+    value: function setState(data) {
+      var nextState = DoubleSlider.map(data, this._checkRange);
       this._state = Object.assign({}, this._state, nextState);
       this._render();
     }
 
-    // ugliest func ever
+    /**
+     * Mapping function.
+     * Checks if value is in range
+     * @param {number} value Property value
+     * @param {string} key Property name
+     * @return {number}
+     */
 
   }, {
     key: '_checkRange',
     value: function _checkRange(value, key) {
-      if (key === 'min') {
-        if (value < 0) return 0;else if (value > this._state.max) return this._state.max;else return value;
-      } else if (key === 'max') {
-        if (value > 1) {
-          return 1;
-        } else if (value < this._state.min) return this._state.min;else return value;
-      } else return value;
-    }
-  }, {
-    key: 'value',
-    get: function get() {
-      var _state2 = this._state,
-          min = _state2.min,
-          max = _state2.max,
-          range = _state2.range;
-
-
-      return {
-        min: Math.round(range * min),
-        max: Math.round(range * max),
-        range: range
+      var range = {
+        min: {
+          MINIMUM: 0,
+          MAXIMUM: this._state.max
+        },
+        max: {
+          MINIMUM: this._state.min,
+          MAXIMUM: 1
+        }
       };
-    },
-    set: function set(data) {
-      var width = this._gBCR.width;
 
+      if (key === 'range') {
+        return value;
+      }
 
-      var range = data.range || this._state.range;
-      var min = DoubleSlider.hasValue(data.min) ? data.min / range : this._state.min;
-      var max = data.max ? data.max / range : this._state.max;
-
-      this._setState({
-        range: range,
-        min: min,
-        max: max
-      });
+      if (value < range[key].MINIMUM) {
+        return range[key].MINIMUM;
+      } else if (value > range[key].MAXIMUM) {
+        return range[key].MAXIMUM;
+      }
+      return value;
     }
+
+    /**
+     * Maps over object properties
+     * @param {Object} obj Object to iterate over.
+     * @param {Function} fn Mapping function.
+     * @return {Object}
+     */
+
   }], [{
     key: 'map',
     value: function map(obj, fn) {
@@ -306,18 +417,12 @@ var DoubleSlider = function () {
       });
       return res;
     }
-  }, {
-    key: 'hasValue',
-    value: function hasValue(value) {
-      return value !== null && value !== undefined;
-    }
   }]);
 
   return DoubleSlider;
 }();
 
-exports.default = DoubleSlider;
-module.exports = exports['default'];
+module.exports = DoubleSlider;
 
 /***/ })
 /******/ ]);
