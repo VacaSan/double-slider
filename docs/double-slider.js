@@ -178,7 +178,7 @@ var DoubleSlider = function () {
           range = _root$dataset.range;
 
 
-      this._range = range;
+      this._range = parseInt(range);
 
       this.setState({
         min: this.normalize(parseInt(min)),
@@ -391,20 +391,15 @@ var DoubleSlider = function () {
       var range = {
         min: {
           MINIMUM: 0,
-          MAXIMUM: this._state.max
+          MAXIMUM: this._state.max || 1
         },
         max: {
-          MINIMUM: this._state.min,
+          MINIMUM: this._state.min || 0,
           MAXIMUM: 1
         }
       };
 
-      if (value < range[key].MINIMUM) {
-        return range[key].MINIMUM;
-      } else if (value > range[key].MAXIMUM) {
-        return range[key].MAXIMUM;
-      }
-      return value;
+      return Math.max(range[key].MINIMUM, Math.min(value, range[key].MAXIMUM));
     }
 
     /**
