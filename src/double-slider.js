@@ -271,4 +271,4 @@ class DoubleSlider {
   }
 }
 
-module.exports = DoubleSlider;
+export default DoubleSlider;

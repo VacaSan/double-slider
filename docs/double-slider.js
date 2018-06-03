@@ -81,6 +81,10 @@ window.DoubleSlider = DoubleSlider;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _template = __webpack_require__(2);
@@ -424,7 +428,8 @@ var DoubleSlider = function () {
   return DoubleSlider;
 }();
 
-module.exports = DoubleSlider;
+exports.default = DoubleSlider;
+module.exports = exports['default'];
 
 /***/ }),
 /* 2 */
