@@ -1,13 +1,12 @@
 module.exports = {
-  "extends": ["eslint:recommended", "google"],
   "env": {
     "browser": true,
-    "node": true,
-    "es6": true
+    "node": true
   },
+  "parser": "babel-eslint",
+  "extends": "google",
   "rules": {
     "no-console": 0,
-    "linebreak-style": 0,
-    "object-curly-spacing": ["error", "always"]
+    "linebreak-style": 0
   }
 };

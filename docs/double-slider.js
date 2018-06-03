@@ -83,6 +83,12 @@ window.DoubleSlider = DoubleSlider;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _template = __webpack_require__(2);
+
+var _template2 = _interopRequireDefault(_template);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -98,6 +104,7 @@ var DoubleSlider = function () {
     _classCallCheck(this, DoubleSlider);
 
     this.root = root;
+    this.root.innerHTML = _template2.default;
 
     this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
@@ -136,7 +143,7 @@ var DoubleSlider = function () {
   }, {
     key: 'normalize',
     value: function normalize(value) {
-      return value / this._state.range;
+      return value / this._range;
     }
 
     /**
@@ -148,7 +155,7 @@ var DoubleSlider = function () {
   }, {
     key: 'denormalize',
     value: function denormalize(value) {
-      return Math.round(value * this._state.range);
+      return Math.round(value * this._range);
     }
 
     /**
@@ -167,7 +174,7 @@ var DoubleSlider = function () {
           range = _root$dataset.range;
 
 
-      this._state.range = range;
+      this._range = range;
 
       this.setState({
         min: this.normalize(parseInt(min)),
@@ -183,11 +190,13 @@ var DoubleSlider = function () {
   }, {
     key: '_cacheDOM',
     value: function _cacheDOM() {
+      var _this = this;
+
       this.track = this.root.querySelector('.js-double-slider_track');
-      this.controls = {
-        min: this.root.querySelector('[data-controls="min"]'),
-        max: this.root.querySelector('[data-controls="max"]')
-      };
+      this.controls = {};
+      Array.from(this.root.querySelectorAll('[data-controls]')).forEach(function (knob) {
+        _this.controls[knob.dataset.name] = knob;
+      });
     }
 
     /**
@@ -243,15 +252,13 @@ var DoubleSlider = function () {
 
       this._knob = evt.target.getAttribute('data-controls');
       this._eventTarget = this.controls[this._knob];
-      // this._gBCR = this.root.getBoundingClientRect();
+      this._gBCR = this.root.getBoundingClientRect();
 
       var pageX = evt.pageX || evt.touches[0].pageX;
       this._left = this._eventTarget.offsetLeft;
       this._currentX = pageX - this._gBCR.left;
 
       this._rAF = requestAnimationFrame(this._animate);
-
-      this._eventTarget.classList.add('double-slider_control--active');
 
       evt.preventDefault();
     }
@@ -286,7 +293,6 @@ var DoubleSlider = function () {
         return;
       }
 
-      this._eventTarget.classList.remove('double-slider_control--active');
       this._eventTarget = null;
       cancelAnimationFrame(this._rAF);
 
@@ -301,12 +307,12 @@ var DoubleSlider = function () {
   }, {
     key: '_onResize',
     value: function _onResize() {
-      var _this = this;
+      var _this2 = this;
 
       clearTimeout(this._resizeTimer);
       this._resizeTimer = setTimeout(function () {
-        _this._gBCR = _this.root.getBoundingClientRect();
-        _this._render();
+        _this2._gBCR = _this2.root.getBoundingClientRect();
+        _this2._render();
       }, 250);
     }
 
@@ -389,10 +395,6 @@ var DoubleSlider = function () {
         }
       };
 
-      if (key === 'range') {
-        return value;
-      }
-
       if (value < range[key].MINIMUM) {
         return range[key].MINIMUM;
       } else if (value > range[key].MAXIMUM) {
@@ -423,6 +425,154 @@ var DoubleSlider = function () {
 }();
 
 module.exports = DoubleSlider;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _style = __webpack_require__(3);
+
+var _style2 = _interopRequireDefault(_style);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var template = '\n  <div class="' + _style2.default + '">\n    <div class="' + _style2.default.trackWrap + '">\n      <div class="' + _style2.default.track + ' js-double-slider_track"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="min"\n      data-name="min"\n      tabindex="0"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="max"\n      data-name="max"\n      tabindex="0"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n  </div>\n';
+
+exports.default = template;
+module.exports = exports['default'];
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _injectedCss = __webpack_require__(4);
+
+var style = _injectedCss.css.inject({
+  _css: '.c-src{ position: relative; width: 100%; height: 48px } .c-src-trackWrap { position: absolute; top: 50%; width: 100%; height: 2px; background-color: rgba(0, 0, 0, .26); -webkit-transform: translateY(-50%); transform: translateY(-50%); overflow: hidden; } .c-src-track { position: absolute; width: 100%; height: 100%; -webkit-transform-origin: left top; transform-origin: left top; background-color: #3F51B5; -webkit-transform: scaleX(0) translateX(0); transform: scaleX(0) translateX(0); } .c-src-control { position: absolute; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; top: 50%; left: 0; width: 42px; height: 42px; background-color: transparent; -webkit-transform: translateX(0) translate(-50%, -50%); transform: translateX(0) translate(-50%, -50%); cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; outline: none; } .c-src-controlKnob { width: 21px; height: 21px; border-radius: 50%; background-color: #3F51B5; -webkit-transform: scale(0.571); transform: scale(0.571); -webkit-transition: -webkit-transform 100ms ease-out; transition: -webkit-transform 100ms ease-out; transition: transform 100ms ease-out; transition: transform 100ms ease-out, -webkit-transform 100ms ease-out; pointer-events: none; will-change: transform; } .c-src-control:active .c-src-controlKnob, .c-src-control:focus .c-src-controlKnob { -webkit-transform: scale(1); transform: scale(1); }',
+  _hash: "955004979-1",
+  toString: function toString() {
+    return "c-src";
+  },
+  "trackWrap": "c-src-trackWrap",
+  "track": "c-src-track",
+  "control": "c-src-control",
+  "controlKnob": "c-src-controlKnob"
+});
+
+exports.default = style;
+module.exports = exports['default'];
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.inject = inject;
+exports.css = css;
+/**
+ * Detect server render.
+ */
+
+var isServer = typeof window === 'undefined';
+var styles = {};
+var flush = exports.flush = function flush() {
+  var ret = Object.keys(styles).map(function (key) {
+    return styles[key];
+  });
+  styles = {};
+  return ret;
+};
+
+/**
+ * Cache style tags to avoid double injection.
+ */
+
+var styleTags = {};
+
+/**
+ * Inject css object (result of babel compilation) to dom.
+ *
+ * @param {Object|string} obj
+ * @return {Object|string}
+ */
+
+function inject(obj) {
+  var str = typeof obj === 'string' ? obj : obj._css;
+  var hash = typeof obj === 'string' ? stringHash(str) : obj._hash;
+
+  if (isServer) {
+    return new Proxy(obj, {
+      get: function get(target, prop, receiver) {
+        if (prop !== '_css' && !styles[hash]) styles[hash] = str;
+        return target[prop];
+      }
+    });
+  }
+
+  if (styleTags[hash]) {
+    var tag = styleTags[hash];
+    tag.innerHTML = str;
+  } else {
+    var _tag = document.createElement('style');
+    _tag.appendChild(document.createTextNode(str));
+    styleTags[hash] = _tag;
+
+    var head = document.head || document.getElementsByTagName('head')[0];
+    head.appendChild(_tag);
+  }
+
+  return obj;
+}
+
+/**
+ * Placeholder for babel compiler.
+ */
+
+function css() {
+  throw new Error('Please transform your code with "injected-css/babel"');
+}
+css.inject = inject;
+
+/**
+ * A fast string hashing function,
+ * copied from https://github.com/darkskyapp/string-hash
+ *
+ * @param {string} str
+ * @return {number} 0..4294967295
+ */
+
+function stringHash(str) {
+  var hash = 5381;
+  var i = str.length;
+
+  while (i) {
+    hash = hash * 33 ^ str.charCodeAt(--i);
+  }
+
+  /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
+   * integers. Since we want the results to be always positive, convert the
+   * signed int to an unsigned by doing an unsigned bitshift. */
+  return hash >>> 0;
+}
 
 /***/ })
 /******/ ]);

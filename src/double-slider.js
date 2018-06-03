@@ -1,3 +1,5 @@
+import template from './template';
+
 /**
  * DoubleSlider component
  */
@@ -7,6 +9,7 @@ class DoubleSlider {
    */
   constructor(root) {
     this.root = root;
+    this.root.innerHTML = template;
 
     this._animate = this._animate.bind(this);
     this._checkRange = this._checkRange.bind(this);
@@ -38,7 +41,7 @@ class DoubleSlider {
    * @return {number} Normalized value.
    */
   normalize(value) {
-    return (value / this._state.range);
+    return (value / this._range);
   }
 
   /**
@@ -47,7 +50,7 @@ class DoubleSlider {
    * @return {number} Denormalized value.
    */
   denormalize(value) {
-    return Math.round(value * this._state.range);
+    return Math.round(value * this._range);
   }
 
   /**
@@ -57,9 +60,9 @@ class DoubleSlider {
   _setInitialState() {
     this._state = {};
     this._gBCR = this.root.getBoundingClientRect();
-    const { min, max, range } = this.root.dataset;
+    const {min, max, range} = this.root.dataset;
 
-    this._state.range = range;
+    this._range = range;
 
     this.setState({
       min: this.normalize(parseInt(min)),
@@ -73,10 +76,11 @@ class DoubleSlider {
    */
   _cacheDOM() {
     this.track = this.root.querySelector('.js-double-slider_track');
-    this.controls = {
-      min: this.root.querySelector('[data-controls="min"]'),
-      max: this.root.querySelector('[data-controls="max"]'),
-    };
+    this.controls = {};
+    Array.from(this.root.querySelectorAll('[data-controls]'))
+      .forEach((knob) => {
+        this.controls[knob.dataset.name] = knob;
+      });
   }
 
   /**
@@ -123,15 +127,13 @@ class DoubleSlider {
 
     this._knob = evt.target.getAttribute('data-controls');
     this._eventTarget = this.controls[this._knob];
-    // this._gBCR = this.root.getBoundingClientRect();
+    this._gBCR = this.root.getBoundingClientRect();
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._left = this._eventTarget.offsetLeft;
     this._currentX = pageX - this._gBCR.left;
 
     this._rAF = requestAnimationFrame(this._animate);
-
-    this._eventTarget.classList.add('double-slider_control--active');
 
     evt.preventDefault();
   }
@@ -160,7 +162,6 @@ class DoubleSlider {
       return;
     }
 
-    this._eventTarget.classList.remove('double-slider_control--active');
     this._eventTarget = null;
     cancelAnimationFrame(this._rAF);
 
@@ -200,8 +201,8 @@ class DoubleSlider {
    * @return {void}
    */
   _render() {
-    const { width } = this._gBCR;
-    const { max, min, range } = this._state;
+    const {width} = this._gBCR;
+    const {max, min, range} = this._state;
 
     this.root.dataset.min = this.denormalize(min);
     this.root.dataset.max = this.denormalize(max);
@@ -246,10 +247,6 @@ class DoubleSlider {
         MAXIMUM: 1,
       },
     };
-
-    if (key === 'range') {
-      return value;
-    }
 
     if (value < range[key].MINIMUM) {
       return range[key].MINIMUM;
