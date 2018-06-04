@@ -5,233 +5,147 @@ import template from './template';
  */
 class DoubleSlider {
   /**
-   * @param {Element} root Root node that holds the slider
+   * @return {Number}
+   */
+  get range() {
+    const range = this.root.dataset.range;
+    if (!range) {
+      throw new Error('Range must be defined');
+    }
+    return parseInt(range);
+  }
+
+  /**
+   * Should be only set from outside.
+   *
+   * @param {Number|String} value
+   */
+  set range(value) {
+    const range = parseInt(value);
+    this.root.dataset.range = range;
+    this._init();
+  }
+
+  /**
+   * Creates new DoubleSlider instance.
+   *
+   * @param {HTMLElement} root - Host element.
    */
   constructor(root) {
     this.root = root;
     this.root.innerHTML = template;
-
-    this._animate = this._animate.bind(this);
-    this._checkRange = this._checkRange.bind(this);
-    this._onEnd = this._onEnd.bind(this);
-    this._onMove = this._onMove.bind(this);
-    this._onResize = this._onResize.bind(this);
-    this._onStart = this._onStart.bind(this);
-    this._addEventListeners = this._addEventListeners.bind(this);
-    this._removeEventListeners = this._removeEventListeners.bind(this);
-
-    this._cacheDOM();
-    this._bindEvents();
-    this._setInitialState();
+    this.track = this.root.querySelector('.js-track');
+    this.knob = {};
+    Array.from(this.root.querySelectorAll('.js-knob'))
+      .forEach((knob) => {
+        this.knob[knob.dataset.controls] = knob;
+      });
+    this._state = {};
+    this._init();
   }
 
   /**
-   * Bind necessary event handlers.
-   * @return {void}
+   * Sets initial state.
    */
-  _bindEvents() {
-    window.addEventListener('resize', this._onResize);
-    this.root.addEventListener('touchstart', this._onStart);
-    this.root.addEventListener('mousedown', this._onStart);
+  _init() {
+    const {min, max} = this.root.dataset;
+    this._width = this.root.getBoundingClientRect().width;
+    this.setState({
+      min,
+      max,
+    });
   }
 
   /**
-   * Normalizes the number.
-   * @param {number} value Number to be normalized.
-   * @return {number} Normalized value.
+   * Normalizes the value.
+   *
+   * @param {number} value - Number to be normalized.
+   * @return {number} - Normalized value.
    */
   normalize(value) {
-    return (value / this._range);
+    return (value / this.range);
   }
 
   /**
-   * Denoramlizes the number.
-   * @param {number} value Number to be denormalized.
-   * @return {number} Denormalized value.
+   * Denoramlizes the value.
+   *
+   * @param {number} value - Number to be denormalized.
+   * @return {number} - Denormalized value.
    */
   denormalize(value) {
-    return Math.round(value * this._range);
+    return Math.round(value * this.range);
   }
 
   /**
-   * Set the initial state of the component
-   * @return {void}
-   */
-  _setInitialState() {
-    this._state = {};
-    this._gBCR = this.root.getBoundingClientRect();
-    const {min, max, range} = this.root.dataset;
-
-    this._range = parseInt(range);
-
-    this.setState({
-      min: this.normalize(parseInt(min)),
-      max: this.normalize(parseInt(max)),
-    });
-  }
-
-  /**
-   * Stores the references to the dom elements
-   * @return {void}
-   */
-  _cacheDOM() {
-    this.track = this.root.querySelector('.js-double-slider_track');
-    this.controls = {};
-    Array.from(this.root.querySelectorAll('[data-controls]'))
-      .forEach((knob) => {
-        this.controls[knob.dataset.name] = knob;
-      });
-  }
-
-  /**
-   * Attaches the event listeners
-   * @return {void}
-   */
-  _addEventListeners() {
-    document.addEventListener('touchmove', this._onMove);
-    document.addEventListener('touchend', this._onEnd);
-    document.addEventListener('touchcancel', this._onEnd);
-
-    document.addEventListener('mousemove', this._onMove);
-    document.addEventListener('mouseup', this._onEnd);
-  }
-
-  /**
-   * Removes the event listeners.
-   * @return {void}
-   */
-  _removeEventListeners() {
-    document.removeEventListener('touchmove', this._onMove);
-    document.removeEventListener('touchend', this._onEnd);
-    document.removeEventListener('touchcancel', this._onEnd);
-
-    document.removeEventListener('mousemove', this._onMove);
-    document.removeEventListener('mouseup', this._onEnd);
-  }
-
-  /**
-   * Touchstart event handler.
-   * @param {Event} evt
-   * @return {void}
-   */
-  _onStart(evt) {
-    if (this._eventTarget) {
-      return;
-    }
-
-    if (!evt.target.classList.contains('js-knob')) {
-      return;
-    }
-
-    this._addEventListeners();
-
-    this._knob = evt.target.getAttribute('data-controls');
-    this._eventTarget = this.controls[this._knob];
-    this._gBCR = this.root.getBoundingClientRect();
-
-    const pageX = evt.pageX || evt.touches[0].pageX;
-    this._left = this._eventTarget.offsetLeft;
-    this._currentX = pageX - this._gBCR.left;
-
-    this._rAF = requestAnimationFrame(this._animate);
-
-    evt.preventDefault();
-  }
-
-  /**
-   * Touchmove event handler.
-   * @param {Event} evt
-   * @return {void}
-   */
-  _onMove(evt) {
-    if (!this._eventTarget) {
-      return;
-    }
-
-    const pageX = evt.pageX || evt.touches[0].pageX;
-    this._currentX = pageX - this._gBCR.left;
-  }
-
-    /**
-   * Touchend event handler.
-   * @param {Event} evt
-   * @return {void}
-   */
-  _onEnd(evt) {
-    if (!this._eventTarget) {
-      return;
-    }
-
-    this._eventTarget = null;
-    cancelAnimationFrame(this._rAF);
-
-    this._removeEventListeners();
-  }
-
-  /**
-   * Resize handler.
-   * @return {void}
-   */
-  _onResize() {
-    clearTimeout(this._resizeTimer);
-    this._resizeTimer = setTimeout(() => {
-      this._gBCR = this.root.getBoundingClientRect();
-      this._render();
-    }, 250);
-  }
-
-  /**
-   * Updates the state with the current position
-   * @return {void}
-   */
-  _animate() {
-    this._rAF = requestAnimationFrame(this._animate);
-
-    if (!this._eventTarget) {
-      return;
-    }
-
-    this.setState({
-      [this._knob]: this._currentX / this._gBCR.width,
-    });
-  }
-
-  /**
-   * Updates the component
+   * Updates the components view.
+   *
    * @return {void}
    */
   _render() {
-    const {width} = this._gBCR;
-    const {max, min, range} = this._state;
+    const {min, max} = this._state;
 
+    // Update data attributes.
     this.root.dataset.min = this.denormalize(min);
     this.root.dataset.max = this.denormalize(max);
-    this.root.dataset.range = range;
 
-    this.controls.max.style.transform =
-      `translateX(${max * width}px) translate(-50%, -50%)`;
-    this.controls.min.style.transform =
-      `translateX(${min * width}px) translate(-50%, -50%)`;
+    this.knob.max.style.transform =
+      `translateX(${max * this._width}px) translate(-50%, -50%)`;
+    this.knob.min.style.transform =
+      `translateX(${min * this._width}px) translate(-50%, -50%)`;
     this.track.style.transform =
-      `translateX(${min * width}px) scaleX(${max - min})`;
+      `translateX(${min * this._width}px) scaleX(${max - min})`;
   }
 
   /**
-   * Updates the current state of the component
-   * @param {Object} data State object
-   * @param {number} data.min Min value.
-   * @param {number} data.max Max value.
-   * @param {number} data.range Range value.
+   * Updates the current state of the component.
+   * partialState is normalized.
+   *
+   * @private
+   * @param {Object} partialState State object
+   * @param {number} partialState.min Min value.
+   * @param {number} partialState.max Max value.
    */
-  setState(data) {
-    let nextState = DoubleSlider.map(data, this._checkRange);
-    this._state = Object.assign({}, this._state, nextState);
+  _setState(partialState) {
+    const validState = this._validateState(partialState);
+    this._state = Object.assign({}, this._state, validState);
     this._render();
   }
 
   /**
-   * Mapping function.
-   * Checks if value is in range
+   * Normalizes the passed object, and updates the local state.
+   *
+   * @public
+   * @param {Object} partialState
+   */
+  setState(partialState) {
+    let _partialState = {};
+    Object.keys(partialState)
+      .forEach((key) => {
+        const value = partialState[key];
+        _partialState[key] = this.normalize(parseInt(value));
+      });
+    this._setState(_partialState);
+  }
+
+  /**
+   * Clamps the values to fit the range.
+   *
+   * @param {Object} partialState - State to check.
+   * @return {Object} - valid state.
+   */
+  _validateState(partialState) {
+    let validState = {};
+    Object.keys(partialState)
+      .forEach((key) => {
+        const value = partialState[key];
+        validState[key] = this._checkRange(value, key);
+      });
+    return validState;
+  }
+
+  /**
+   * Checks if value is in range.
+   *
    * @param {number} value Property value
    * @param {string} key Property name
    * @return {number}
@@ -250,20 +164,6 @@ class DoubleSlider {
 
     return Math.max(range[key].MINIMUM,
       Math.min(value, range[key].MAXIMUM));
-  }
-
-  /**
-   * Maps over object properties
-   * @param {Object} obj Object to iterate over.
-   * @param {Function} fn Mapping function.
-   * @return {Object}
-   */
-  static map(obj, fn) {
-    const res = {};
-    Object.keys(obj).forEach((key) => {
-      res[key] = fn(obj[key], key);
-    });
-    return res;
   }
 }
 

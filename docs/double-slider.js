@@ -93,293 +93,191 @@ var _template2 = _interopRequireDefault(_template);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * DoubleSlider component
  */
 var DoubleSlider = function () {
-  /**
-   * @param {Element} root Root node that holds the slider
-   */
+  _createClass(DoubleSlider, [{
+    key: 'range',
+
+    /**
+     * @return {Number}
+     */
+    get: function get() {
+      var range = this.root.dataset.range;
+      if (!range) {
+        throw new Error('Range must be defined');
+      }
+      return parseInt(range);
+    }
+
+    /**
+     * Should be only set from outside.
+     *
+     * @param {Number|String} value
+     */
+    ,
+    set: function set(value) {
+      var range = parseInt(value);
+      this.root.dataset.range = range;
+      this._init();
+    }
+
+    /**
+     * Creates new DoubleSlider instance.
+     *
+     * @param {HTMLElement} root - Host element.
+     */
+
+  }]);
+
   function DoubleSlider(root) {
+    var _this = this;
+
     _classCallCheck(this, DoubleSlider);
 
     this.root = root;
     this.root.innerHTML = _template2.default;
-
-    this._animate = this._animate.bind(this);
-    this._checkRange = this._checkRange.bind(this);
-    this._onEnd = this._onEnd.bind(this);
-    this._onMove = this._onMove.bind(this);
-    this._onResize = this._onResize.bind(this);
-    this._onStart = this._onStart.bind(this);
-    this._addEventListeners = this._addEventListeners.bind(this);
-    this._removeEventListeners = this._removeEventListeners.bind(this);
-
-    this._cacheDOM();
-    this._bindEvents();
-    this._setInitialState();
+    this.track = this.root.querySelector('.js-track');
+    this.knob = {};
+    Array.from(this.root.querySelectorAll('.js-knob')).forEach(function (knob) {
+      _this.knob[knob.dataset.controls] = knob;
+    });
+    this._state = {};
+    this._init();
   }
 
   /**
-   * Bind necessary event handlers.
-   * @return {void}
+   * Sets initial state.
    */
 
 
   _createClass(DoubleSlider, [{
-    key: '_bindEvents',
-    value: function _bindEvents() {
-      window.addEventListener('resize', this._onResize);
-      this.root.addEventListener('touchstart', this._onStart);
-      this.root.addEventListener('mousedown', this._onStart);
+    key: '_init',
+    value: function _init() {
+      var _root$dataset = this.root.dataset,
+          min = _root$dataset.min,
+          max = _root$dataset.max;
+
+      this._width = this.root.getBoundingClientRect().width;
+      this.setState({
+        min: min,
+        max: max
+      });
     }
 
     /**
-     * Normalizes the number.
-     * @param {number} value Number to be normalized.
-     * @return {number} Normalized value.
+     * Normalizes the value.
+     *
+     * @param {number} value - Number to be normalized.
+     * @return {number} - Normalized value.
      */
 
   }, {
     key: 'normalize',
     value: function normalize(value) {
-      return value / this._range;
+      return value / this.range;
     }
 
     /**
-     * Denoramlizes the number.
-     * @param {number} value Number to be denormalized.
-     * @return {number} Denormalized value.
+     * Denoramlizes the value.
+     *
+     * @param {number} value - Number to be denormalized.
+     * @return {number} - Denormalized value.
      */
 
   }, {
     key: 'denormalize',
     value: function denormalize(value) {
-      return Math.round(value * this._range);
+      return Math.round(value * this.range);
     }
 
     /**
-     * Set the initial state of the component
-     * @return {void}
-     */
-
-  }, {
-    key: '_setInitialState',
-    value: function _setInitialState() {
-      this._state = {};
-      this._gBCR = this.root.getBoundingClientRect();
-      var _root$dataset = this.root.dataset,
-          min = _root$dataset.min,
-          max = _root$dataset.max,
-          range = _root$dataset.range;
-
-
-      this._range = parseInt(range);
-
-      this.setState({
-        min: this.normalize(parseInt(min)),
-        max: this.normalize(parseInt(max))
-      });
-    }
-
-    /**
-     * Stores the references to the dom elements
-     * @return {void}
-     */
-
-  }, {
-    key: '_cacheDOM',
-    value: function _cacheDOM() {
-      var _this = this;
-
-      this.track = this.root.querySelector('.js-double-slider_track');
-      this.controls = {};
-      Array.from(this.root.querySelectorAll('[data-controls]')).forEach(function (knob) {
-        _this.controls[knob.dataset.name] = knob;
-      });
-    }
-
-    /**
-     * Attaches the event listeners
-     * @return {void}
-     */
-
-  }, {
-    key: '_addEventListeners',
-    value: function _addEventListeners() {
-      document.addEventListener('touchmove', this._onMove);
-      document.addEventListener('touchend', this._onEnd);
-      document.addEventListener('touchcancel', this._onEnd);
-
-      document.addEventListener('mousemove', this._onMove);
-      document.addEventListener('mouseup', this._onEnd);
-    }
-
-    /**
-     * Removes the event listeners.
-     * @return {void}
-     */
-
-  }, {
-    key: '_removeEventListeners',
-    value: function _removeEventListeners() {
-      document.removeEventListener('touchmove', this._onMove);
-      document.removeEventListener('touchend', this._onEnd);
-      document.removeEventListener('touchcancel', this._onEnd);
-
-      document.removeEventListener('mousemove', this._onMove);
-      document.removeEventListener('mouseup', this._onEnd);
-    }
-
-    /**
-     * Touchstart event handler.
-     * @param {Event} evt
-     * @return {void}
-     */
-
-  }, {
-    key: '_onStart',
-    value: function _onStart(evt) {
-      if (this._eventTarget) {
-        return;
-      }
-
-      if (!evt.target.classList.contains('js-knob')) {
-        return;
-      }
-
-      this._addEventListeners();
-
-      this._knob = evt.target.getAttribute('data-controls');
-      this._eventTarget = this.controls[this._knob];
-      this._gBCR = this.root.getBoundingClientRect();
-
-      var pageX = evt.pageX || evt.touches[0].pageX;
-      this._left = this._eventTarget.offsetLeft;
-      this._currentX = pageX - this._gBCR.left;
-
-      this._rAF = requestAnimationFrame(this._animate);
-
-      evt.preventDefault();
-    }
-
-    /**
-     * Touchmove event handler.
-     * @param {Event} evt
-     * @return {void}
-     */
-
-  }, {
-    key: '_onMove',
-    value: function _onMove(evt) {
-      if (!this._eventTarget) {
-        return;
-      }
-
-      var pageX = evt.pageX || evt.touches[0].pageX;
-      this._currentX = pageX - this._gBCR.left;
-    }
-
-    /**
-    * Touchend event handler.
-    * @param {Event} evt
-    * @return {void}
-    */
-
-  }, {
-    key: '_onEnd',
-    value: function _onEnd(evt) {
-      if (!this._eventTarget) {
-        return;
-      }
-
-      this._eventTarget = null;
-      cancelAnimationFrame(this._rAF);
-
-      this._removeEventListeners();
-    }
-
-    /**
-     * Resize handler.
-     * @return {void}
-     */
-
-  }, {
-    key: '_onResize',
-    value: function _onResize() {
-      var _this2 = this;
-
-      clearTimeout(this._resizeTimer);
-      this._resizeTimer = setTimeout(function () {
-        _this2._gBCR = _this2.root.getBoundingClientRect();
-        _this2._render();
-      }, 250);
-    }
-
-    /**
-     * Updates the state with the current position
-     * @return {void}
-     */
-
-  }, {
-    key: '_animate',
-    value: function _animate() {
-      this._rAF = requestAnimationFrame(this._animate);
-
-      if (!this._eventTarget) {
-        return;
-      }
-
-      this.setState(_defineProperty({}, this._knob, this._currentX / this._gBCR.width));
-    }
-
-    /**
-     * Updates the component
+     * Updates the components view.
+     *
      * @return {void}
      */
 
   }, {
     key: '_render',
     value: function _render() {
-      var width = this._gBCR.width;
       var _state = this._state,
-          max = _state.max,
           min = _state.min,
-          range = _state.range;
+          max = _state.max;
 
+      // Update data attributes.
 
       this.root.dataset.min = this.denormalize(min);
       this.root.dataset.max = this.denormalize(max);
-      this.root.dataset.range = range;
 
-      this.controls.max.style.transform = 'translateX(' + max * width + 'px) translate(-50%, -50%)';
-      this.controls.min.style.transform = 'translateX(' + min * width + 'px) translate(-50%, -50%)';
-      this.track.style.transform = 'translateX(' + min * width + 'px) scaleX(' + (max - min) + ')';
+      this.knob.max.style.transform = 'translateX(' + max * this._width + 'px) translate(-50%, -50%)';
+      this.knob.min.style.transform = 'translateX(' + min * this._width + 'px) translate(-50%, -50%)';
+      this.track.style.transform = 'translateX(' + min * this._width + 'px) scaleX(' + (max - min) + ')';
     }
 
     /**
-     * Updates the current state of the component
-     * @param {Object} data State object
-     * @param {number} data.min Min value.
-     * @param {number} data.max Max value.
-     * @param {number} data.range Range value.
+     * Updates the current state of the component.
+     * partialState is normalized.
+     *
+     * @private
+     * @param {Object} partialState State object
+     * @param {number} partialState.min Min value.
+     * @param {number} partialState.max Max value.
      */
 
   }, {
-    key: 'setState',
-    value: function setState(data) {
-      var nextState = DoubleSlider.map(data, this._checkRange);
-      this._state = Object.assign({}, this._state, nextState);
+    key: '_setState',
+    value: function _setState(partialState) {
+      var validState = this._validateState(partialState);
+      this._state = Object.assign({}, this._state, validState);
       this._render();
     }
 
     /**
-     * Mapping function.
-     * Checks if value is in range
+     * Normalizes the passed object, and updates the local state.
+     *
+     * @public
+     * @param {Object} partialState
+     */
+
+  }, {
+    key: 'setState',
+    value: function setState(partialState) {
+      var _this2 = this;
+
+      var _partialState = {};
+      Object.keys(partialState).forEach(function (key) {
+        var value = partialState[key];
+        _partialState[key] = _this2.normalize(parseInt(value));
+      });
+      this._setState(_partialState);
+    }
+
+    /**
+     * Clamps the values to fit the range.
+     *
+     * @param {Object} partialState - State to check.
+     * @return {Object} - valid state.
+     */
+
+  }, {
+    key: '_validateState',
+    value: function _validateState(partialState) {
+      var _this3 = this;
+
+      var validState = {};
+      Object.keys(partialState).forEach(function (key) {
+        var value = partialState[key];
+        validState[key] = _this3._checkRange(value, key);
+      });
+      return validState;
+    }
+
+    /**
+     * Checks if value is in range.
+     *
      * @param {number} value Property value
      * @param {string} key Property name
      * @return {number}
@@ -400,23 +298,6 @@ var DoubleSlider = function () {
       };
 
       return Math.max(range[key].MINIMUM, Math.min(value, range[key].MAXIMUM));
-    }
-
-    /**
-     * Maps over object properties
-     * @param {Object} obj Object to iterate over.
-     * @param {Function} fn Mapping function.
-     * @return {Object}
-     */
-
-  }], [{
-    key: 'map',
-    value: function map(obj, fn) {
-      var res = {};
-      Object.keys(obj).forEach(function (key) {
-        res[key] = fn(obj[key], key);
-      });
-      return res;
     }
   }]);
 
@@ -443,7 +324,7 @@ var _style2 = _interopRequireDefault(_style);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var template = '\n  <div class="' + _style2.default + '">\n    <div class="' + _style2.default.trackWrap + '">\n      <div class="' + _style2.default.track + ' js-double-slider_track"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="min"\n      data-name="min"\n      tabindex="0"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="max"\n      data-name="max"\n      tabindex="0"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n  </div>\n';
+var template = '\n  <div class="' + _style2.default + '">\n    <div class="' + _style2.default.trackWrap + '">\n      <div class="' + _style2.default.track + ' js-track"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="min"\n      tabindex="0"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="max"\n      tabindex="0"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n  </div>\n';
 
 exports.default = template;
 module.exports = exports['default'];
