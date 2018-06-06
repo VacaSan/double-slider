@@ -147,6 +147,7 @@ var DoubleSlider = function () {
     this._animate = this._animate.bind(this);
     this._onEnd = this._onEnd.bind(this);
     this._onMove = this._onMove.bind(this);
+    this._onResize = this._onResize.bind(this);
     this._onStart = this._onStart.bind(this);
 
     // Cache DOM, and bind event handlers.
@@ -158,6 +159,7 @@ var DoubleSlider = function () {
       // Attach event handler to each knob.
       knob.addEventListener('mousedown', _this._onStart);
     });
+    window.addEventListener('resize', this._onResize);
 
     this._state = {};
     this._target = null;
@@ -239,6 +241,22 @@ var DoubleSlider = function () {
 
       this._target = null;
       this._removeEventListeners();
+    }
+
+    /**
+     * Resize event handler. Fires after the resize has finished.
+     * https://css-tricks.com/snippets/jquery/done-resizing-event/
+     */
+
+  }, {
+    key: '_onResize',
+    value: function _onResize() {
+      var _this2 = this;
+
+      clearTimeout(this._resizeTimer);
+      this._resizeTimer = setTimeout(function () {
+        _this2._init();
+      }, 250);
     }
 
     /**
@@ -335,12 +353,12 @@ var DoubleSlider = function () {
   }, {
     key: 'setState',
     value: function setState(partialState) {
-      var _this2 = this;
+      var _this3 = this;
 
       var _partialState = {};
       Object.keys(partialState).forEach(function (key) {
         var value = partialState[key];
-        _partialState[key] = _this2.normalize(parseInt(value));
+        _partialState[key] = _this3.normalize(parseInt(value));
       });
       this._setState(_partialState);
     }
@@ -355,12 +373,12 @@ var DoubleSlider = function () {
   }, {
     key: '_validateState',
     value: function _validateState(partialState) {
-      var _this3 = this;
+      var _this4 = this;
 
       var validState = {};
       Object.keys(partialState).forEach(function (key) {
         var value = partialState[key];
-        validState[key] = _this3._checkRange(value, key);
+        validState[key] = _this4._checkRange(value, key);
       });
       return validState;
     }

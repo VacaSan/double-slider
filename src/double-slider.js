@@ -39,18 +39,20 @@ class DoubleSlider {
     this._animate = this._animate.bind(this);
     this._onEnd = this._onEnd.bind(this);
     this._onMove = this._onMove.bind(this);
+    this._onResize = this._onResize.bind(this);
     this._onStart = this._onStart.bind(this);
 
     // Cache DOM, and bind event handlers.
     this.track = this.root.querySelector('.js-track');
     this.knob = {};
     Array.from(this.root.querySelectorAll('.js-knob'))
-      .forEach((knob) => {
-        // Hold a ref to the knob.
-        this.knob[knob.dataset.controls] = knob;
-        // Attach event handler to each knob.
-        knob.addEventListener('mousedown', this._onStart);
-      });
+    .forEach((knob) => {
+      // Hold a ref to the knob.
+      this.knob[knob.dataset.controls] = knob;
+      // Attach event handler to each knob.
+      knob.addEventListener('mousedown', this._onStart);
+    });
+    window.addEventListener('resize', this._onResize);
 
     this._state = {};
     this._target = null;
@@ -116,6 +118,17 @@ class DoubleSlider {
 
     this._target = null;
     this._removeEventListeners();
+  }
+
+  /**
+   * Resize event handler. Fires after the resize has finished.
+   * https://css-tricks.com/snippets/jquery/done-resizing-event/
+   */
+  _onResize() {
+    clearTimeout(this._resizeTimer);
+    this._resizeTimer = setTimeout(() => {
+      this._init();
+    }, 250);
   }
 
   /**
