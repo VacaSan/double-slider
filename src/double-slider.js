@@ -34,12 +34,13 @@ class DoubleSlider {
   constructor(root) {
     this.root = root;
     this.root.innerHTML = template;
-    
+
     // Bind methods to the instance.
+    this._animate = this._animate.bind(this);
     this._onEnd = this._onEnd.bind(this);
     this._onMove = this._onMove.bind(this);
     this._onStart = this._onStart.bind(this);
-    
+
     // Cache DOM, and bind event handlers.
     this.track = this.root.querySelector('.js-track');
     this.knob = {};
@@ -50,7 +51,7 @@ class DoubleSlider {
         // Attach event handler to each knob.
         knob.addEventListener('mousedown', this._onStart);
       });
-    
+
     this._state = {};
     this._target = null;
 
@@ -84,8 +85,8 @@ class DoubleSlider {
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
-    console.log('touchstart fires', this._currentX);
-    console.log('attach event handler to the document, and rAF');
+    this._addEventListeners();
+    window.requestAnimationFrame(this._animate);
     evt.preventDefault();
   }
 
@@ -98,10 +99,9 @@ class DoubleSlider {
     if (!this._target) {
       return;
     }
-    
+
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
-    console.log('touchmove fires', this._currentX);
   }
 
   /**
@@ -115,8 +115,7 @@ class DoubleSlider {
     }
 
     this._target = null;
-    console.log('touchend fires');
-    console.log('remove event handlers from the document, and do clean up.');
+    this._removeEventListeners();
   }
 
   /**
@@ -137,6 +136,21 @@ class DoubleSlider {
    */
   denormalize(value) {
     return Math.round(value * this.range);
+  }
+
+  /**
+   * Updates the state based on the current position of the knob.
+   */
+  _animate() {
+    if (!this._target) {
+      return;
+    }
+
+    window.requestAnimationFrame(this._animate);
+    const name = this._target.dataset.controls;
+    this._setState({
+      [name]: this._currentX / this._gBCR.width,
+    });
   }
 
   /**
@@ -228,6 +242,22 @@ class DoubleSlider {
 
     return Math.max(range[key].MINIMUM,
       Math.min(value, range[key].MAXIMUM));
+  }
+
+  /**
+   * Convinience method for attaching event handlers to the document object.
+   */
+  _addEventListeners() {
+    document.addEventListener('mousemove', this._onMove);
+    document.addEventListener('mouseup', this._onEnd);
+  }
+
+  /**
+   * Convinience method for removing event handlers from the document.
+   */
+  _removeEventListeners() {
+    document.removeEventListener('mousemove', this._onMove);
+    document.removeEventListener('mouseup', this._onEnd);
   }
 }
 
