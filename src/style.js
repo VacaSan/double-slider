@@ -52,8 +52,7 @@ const style = css`
     pointer-events: none;
     will-change: transform;
   }
-  &-control:active &-controlKnob,
-  &-control:focus &-controlKnob {
+  &-control.active &-controlKnob {
     transform: scale(1);
   }
 `;

@@ -84,6 +84,9 @@ class DoubleSlider {
 
     const name = evt.target.dataset.controls;
     this._target = this.knob[name];
+    // In firefox element doesn't get focus on click, hence this.
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=606011
+    this._target.classList.add('active');
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
@@ -116,6 +119,7 @@ class DoubleSlider {
       return;
     }
 
+    this._target.classList.remove('active');
     this._target = null;
     this._removeEventListeners();
   }
