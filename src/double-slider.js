@@ -34,13 +34,26 @@ class DoubleSlider {
   constructor(root) {
     this.root = root;
     this.root.innerHTML = template;
+    
+    // Bind methods to the instance.
+    this._onEnd = this._onEnd.bind(this);
+    this._onMove = this._onMove.bind(this);
+    this._onStart = this._onStart.bind(this);
+    
+    // Cache DOM, and bind event handlers.
     this.track = this.root.querySelector('.js-track');
     this.knob = {};
     Array.from(this.root.querySelectorAll('.js-knob'))
       .forEach((knob) => {
+        // Hold a ref to the knob.
         this.knob[knob.dataset.controls] = knob;
+        // Attach event handler to each knob.
+        knob.addEventListener('mousedown', this._onStart);
       });
+    
     this._state = {};
+    this._target = null;
+
     this._init();
   }
 
@@ -49,11 +62,61 @@ class DoubleSlider {
    */
   _init() {
     const {min, max} = this.root.dataset;
-    this._width = this.root.getBoundingClientRect().width;
+    this._gBCR = this.root.getBoundingClientRect();
     this.setState({
       min,
       max,
     });
+  }
+
+  /**
+   * Touchstart/mousedown event handler.
+   *
+   * @param {Event} evt
+   */
+  _onStart(evt) {
+    if (this._target) {
+      return;
+    }
+
+    const name = evt.target.dataset.controls;
+    this._target = this.knob[name];
+
+    const pageX = evt.pageX || evt.touches[0].pageX;
+    this._currentX = pageX - this._gBCR.left;
+    console.log('touchstart fires', this._currentX);
+    console.log('attach event handler to the document, and rAF');
+    evt.preventDefault();
+  }
+
+  /**
+   * Touchmove/mousemove event handler.
+   *
+   * @param {Event} evt
+   */
+  _onMove(evt) {
+    if (!this._target) {
+      return;
+    }
+    
+    const pageX = evt.pageX || evt.touches[0].pageX;
+    this._currentX = pageX - this._gBCR.left;
+    console.log('touchmove fires', this._currentX);
+  }
+
+  /**
+   * Touchend/touchcance/mouseup event handler.
+   *
+   * @param {Event} evt
+   */
+  _onEnd(evt) {
+    if (!this._target) {
+      return;
+    }
+
+    this._target = null;
+    console.log('touchend fires');
+    console.log('remove event handlers from the document, and do clean up.');
   }
 
   /**
@@ -83,17 +146,18 @@ class DoubleSlider {
    */
   _render() {
     const {min, max} = this._state;
+    const {width} = this._gBCR;
 
     // Update data attributes.
     this.root.dataset.min = this.denormalize(min);
     this.root.dataset.max = this.denormalize(max);
 
     this.knob.max.style.transform =
-      `translateX(${max * this._width}px) translate(-50%, -50%)`;
+      `translateX(${max * width}px) translate(-50%, -50%)`;
     this.knob.min.style.transform =
-      `translateX(${min * this._width}px) translate(-50%, -50%)`;
+      `translateX(${min * width}px) translate(-50%, -50%)`;
     this.track.style.transform =
-      `translateX(${min * this._width}px) scaleX(${max - min})`;
+      `translateX(${min * width}px) scaleX(${max - min})`;
   }
 
   /**

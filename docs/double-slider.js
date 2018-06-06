@@ -140,12 +140,25 @@ var DoubleSlider = function () {
 
     this.root = root;
     this.root.innerHTML = _template2.default;
+
+    // Bind methods to the instance.
+    this._onEnd = this._onEnd.bind(this);
+    this._onMove = this._onMove.bind(this);
+    this._onStart = this._onStart.bind(this);
+
+    // Cache DOM, and bind event handlers.
     this.track = this.root.querySelector('.js-track');
     this.knob = {};
     Array.from(this.root.querySelectorAll('.js-knob')).forEach(function (knob) {
+      // Hold a ref to the knob.
       _this.knob[knob.dataset.controls] = knob;
+      // Attach event handler to each knob.
+      knob.addEventListener('mousedown', _this._onStart);
     });
+
     this._state = {};
+    this._target = null;
+
     this._init();
   }
 
@@ -161,11 +174,70 @@ var DoubleSlider = function () {
           min = _root$dataset.min,
           max = _root$dataset.max;
 
-      this._width = this.root.getBoundingClientRect().width;
+      this._gBCR = this.root.getBoundingClientRect();
       this.setState({
         min: min,
         max: max
       });
+    }
+
+    /**
+     * Touchstart/mousedown event handler.
+     *
+     * @param {Event} evt
+     */
+
+  }, {
+    key: '_onStart',
+    value: function _onStart(evt) {
+      if (this._target) {
+        return;
+      }
+
+      var name = evt.target.dataset.controls;
+      this._target = this.knob[name];
+
+      var pageX = evt.pageX || evt.touches[0].pageX;
+      this._currentX = pageX - this._gBCR.left;
+      console.log('touchstart fires', this._currentX);
+      console.log('attach event handler to the document, and rAF');
+      evt.preventDefault();
+    }
+
+    /**
+     * Touchmove/mousemove event handler.
+     *
+     * @param {Event} evt
+     */
+
+  }, {
+    key: '_onMove',
+    value: function _onMove(evt) {
+      if (!this._target) {
+        return;
+      }
+
+      var pageX = evt.pageX || evt.touches[0].pageX;
+      this._currentX = pageX - this._gBCR.left;
+      console.log('touchmove fires', this._currentX);
+    }
+
+    /**
+     * Touchend/touchcance/mouseup event handler.
+     *
+     * @param {Event} evt
+     */
+
+  }, {
+    key: '_onEnd',
+    value: function _onEnd(evt) {
+      if (!this._target) {
+        return;
+      }
+
+      this._target = null;
+      console.log('touchend fires');
+      console.log('remove event handlers from the document, and do clean up.');
     }
 
     /**
@@ -206,15 +278,16 @@ var DoubleSlider = function () {
       var _state = this._state,
           min = _state.min,
           max = _state.max;
+      var width = this._gBCR.width;
 
       // Update data attributes.
 
       this.root.dataset.min = this.denormalize(min);
       this.root.dataset.max = this.denormalize(max);
 
-      this.knob.max.style.transform = 'translateX(' + max * this._width + 'px) translate(-50%, -50%)';
-      this.knob.min.style.transform = 'translateX(' + min * this._width + 'px) translate(-50%, -50%)';
-      this.track.style.transform = 'translateX(' + min * this._width + 'px) scaleX(' + (max - min) + ')';
+      this.knob.max.style.transform = 'translateX(' + max * width + 'px) translate(-50%, -50%)';
+      this.knob.min.style.transform = 'translateX(' + min * width + 'px) translate(-50%, -50%)';
+      this.track.style.transform = 'translateX(' + min * width + 'px) scaleX(' + (max - min) + ')';
     }
 
     /**
@@ -344,7 +417,7 @@ var _injectedCss = __webpack_require__(4);
 
 var style = _injectedCss.css.inject({
   _css: '.c-src{ position: relative; width: 100%; height: 48px } .c-src-trackWrap { position: absolute; top: 50%; width: 100%; height: 2px; background-color: rgba(0, 0, 0, .26); -webkit-transform: translateY(-50%); transform: translateY(-50%); overflow: hidden; } .c-src-track { position: absolute; width: 100%; height: 100%; -webkit-transform-origin: left top; transform-origin: left top; background-color: #3F51B5; -webkit-transform: scaleX(0) translateX(0); transform: scaleX(0) translateX(0); } .c-src-control { position: absolute; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; top: 50%; left: 0; width: 42px; height: 42px; background-color: transparent; -webkit-transform: translateX(0) translate(-50%, -50%); transform: translateX(0) translate(-50%, -50%); cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; outline: none; } .c-src-controlKnob { width: 21px; height: 21px; border-radius: 50%; background-color: #3F51B5; -webkit-transform: scale(0.571); transform: scale(0.571); -webkit-transition: -webkit-transform 100ms ease-out; transition: -webkit-transform 100ms ease-out; transition: transform 100ms ease-out; transition: transform 100ms ease-out, -webkit-transform 100ms ease-out; pointer-events: none; will-change: transform; } .c-src-control:active .c-src-controlKnob, .c-src-control:focus .c-src-controlKnob { -webkit-transform: scale(1); transform: scale(1); }',
-  _hash: "955004979-1",
+  _hash: "3333835667-1",
   toString: function toString() {
     return "c-src";
   },
