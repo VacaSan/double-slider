@@ -13,14 +13,19 @@ const style = css`
     background-color: rgba(0, 0, 0, .26);
     transform: translateY(-50%);
     overflow: hidden;
+
+    .inverse & {
+      background-color: rgba(255, 255, 255, .26);
+    }
   }
   &-track {
     position: absolute;
     width: 100%;
     height: 100%;
     transform-origin: left top;
-    background-color: #3F51B5;
+    background-color: currentColor;
     transform: scaleX(0) translateX(0);
+    will-change: transform;
   }
   &-control {
     position: absolute;
@@ -41,7 +46,7 @@ const style = css`
     width: 21px;
     height: 21px;
     border-radius: 50%;
-    background-color: #3F51B5;
+    background-color: currentColor;
     transform: scale(0.571);
     transition: transform 100ms ease-out;
     pointer-events: none;
