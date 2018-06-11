@@ -42,6 +42,22 @@
       data-max="75"
       data-range="100"
     ></div>
+    <div class="g-input-group">
+      <input
+        class="form-control js-range-input"
+        name="min"
+        type="number"
+        placeholder="min"
+        min="0"
+      >
+      <input
+        class="form-control js-range-input"
+        name="max"
+        type="number"
+        placeholder="max"
+        min="0"
+      >
+    </div>
     <!-- /slider -->
   </div>
 
@@ -49,10 +65,24 @@
   <script>
 
     const slider = new DoubleSlider(document.getElementById('double-slider'));
-    slider.addEventListener('sliderend', (evt) => {
-      const {min, max} = evt.detail;
-      console.log(min, max);
+    const $inputs = document.querySelectorAll('input[type="number"]');
+
+    slider.addEventListener('sliderend', onEnd);
+    $inputs.forEach(($input) => {
+      $input.addEventListener('input', onInput);
     });
+
+    function onEnd(evt) {
+      $inputs.forEach(($input) => {
+        const name = $input.name;
+        $input.value = evt.detail[name];
+      });
+    }
+
+    function onInput(evt) {
+      const {name, value} = evt.target;
+      slider.value = {[name]: value};
+    }
   </script>
 </body>
 </html>
