@@ -93,8 +93,6 @@ var _template2 = _interopRequireDefault(_template);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -493,8 +491,7 @@ var DoubleSlider = function () {
     value: function addEventListener() {
       var _root;
 
-      var args = Array.from(arguments);
-      (_root = this.root).addEventListener.apply(_root, _toConsumableArray(args));
+      (_root = this.root).addEventListener.apply(_root, arguments);
     }
 
     /**
@@ -506,8 +503,7 @@ var DoubleSlider = function () {
     value: function removeEventListener() {
       var _root2;
 
-      var args = Array.from(arguments);
-      (_root2 = this.root).removeEventListener.apply(_root2, _toConsumableArray(args));
+      (_root2 = this.root).removeEventListener.apply(_root2, arguments);
     }
   }]);
 

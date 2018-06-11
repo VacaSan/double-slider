@@ -102,7 +102,7 @@ class DoubleSlider {
   _init() {
     const {min, max} = this.root.dataset;
     this._gBCR = this.root.getBoundingClientRect();
-    this.value = {min,max};
+    this.value = {min, max};
   }
 
   /**
@@ -318,16 +318,14 @@ class DoubleSlider {
   /**
    * Convinience methdo for attaching the event handler to the root element.
    */
-  addEventListener() {
-    const args = Array.from(arguments);
+  addEventListener(...args) {
     this.root.addEventListener(...args);
   }
 
   /**
    * Convinience methdo for removing the event handler from the root element.
    */
-  removeEventListener() {
-    const args = Array.from(arguments);
+  removeEventListener(...args) {
     this.root.removeEventListener(...args);
   }
 }
