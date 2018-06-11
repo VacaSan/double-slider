@@ -49,7 +49,10 @@
   <script>
 
     const slider = new DoubleSlider(document.getElementById('double-slider'));
-
+    slider.addEventListener('sliderend', (evt) => {
+      const {min, max} = evt.detail;
+      console.log(min, max);
+    });
   </script>
 </body>
 </html>

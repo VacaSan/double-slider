@@ -1,6 +1,12 @@
 import template from './template';
 
 /**
+ * @typedef {Object} State
+ * @property {number} min - The min value.
+ * @property {number} max - The max value.
+ */
+
+/**
  * DoubleSlider component
  */
 class DoubleSlider {
@@ -24,6 +30,32 @@ class DoubleSlider {
     const range = parseInt(value);
     this.root.dataset.range = range;
     this._init();
+  }
+
+  /**
+   * @return {State} - Denormalized state.
+   */
+  get value() {
+    const {min, max} = this._state;
+    return {
+      min: this.denormalize(min),
+      max: this.denormalize(max),
+    };
+  }
+
+  /**
+   * Normalizes the passed object, and updates the local state.
+   *
+   * @param {State} partialState
+   */
+  set value(partialState) {
+    let _partialState = {};
+    Object.keys(partialState)
+      .forEach((key) => {
+        const value = partialState[key];
+        _partialState[key] = this.normalize(parseInt(value));
+      });
+    this._setState(_partialState);
   }
 
   /**
@@ -54,8 +86,12 @@ class DoubleSlider {
     });
     window.addEventListener('resize', this._onResize);
 
-    this._state = {};
     this._target = null;
+    this._state = {
+      min: 0,
+      max: 1,
+    };
+
 
     this._init();
   }
@@ -66,10 +102,7 @@ class DoubleSlider {
   _init() {
     const {min, max} = this.root.dataset;
     this._gBCR = this.root.getBoundingClientRect();
-    this.setState({
-      min,
-      max,
-    });
+    this.value = {min,max};
   }
 
   /**
@@ -93,6 +126,8 @@ class DoubleSlider {
     this._addEventListeners();
     window.requestAnimationFrame(this._animate);
     evt.preventDefault();
+    // Dispatch sliderstart event.
+    this._dispatch('sliderstart');
   }
 
   /**
@@ -107,6 +142,8 @@ class DoubleSlider {
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
+    // Dispatch slidermove event.
+    this._dispatch('slidermove');
   }
 
   /**
@@ -122,6 +159,8 @@ class DoubleSlider {
     this._target.classList.remove('active');
     this._target = null;
     this._removeEventListeners();
+    // Dispatch sliderend event.
+    this._dispatch('sliderend');
   }
 
   /**
@@ -172,8 +211,6 @@ class DoubleSlider {
 
   /**
    * Updates the components view.
-   *
-   * @return {void}
    */
   _render() {
     const {min, max} = this._state;
@@ -196,9 +233,7 @@ class DoubleSlider {
    * partialState is normalized.
    *
    * @private
-   * @param {Object} partialState State object
-   * @param {number} partialState.min Min value.
-   * @param {number} partialState.max Max value.
+   * @param {State} partialState
    */
   _setState(partialState) {
     const validState = this._validateState(partialState);
@@ -207,26 +242,10 @@ class DoubleSlider {
   }
 
   /**
-   * Normalizes the passed object, and updates the local state.
-   *
-   * @public
-   * @param {Object} partialState
-   */
-  setState(partialState) {
-    let _partialState = {};
-    Object.keys(partialState)
-      .forEach((key) => {
-        const value = partialState[key];
-        _partialState[key] = this.normalize(parseInt(value));
-      });
-    this._setState(_partialState);
-  }
-
-  /**
    * Clamps the values to fit the range.
    *
-   * @param {Object} partialState - State to check.
-   * @return {Object} - valid state.
+   * @param {State} partialState - State to check.
+   * @return {State} - valid state.
    */
   _validateState(partialState) {
     let validState = {};
@@ -246,19 +265,30 @@ class DoubleSlider {
    * @return {number}
    */
   _checkRange(value, key) {
+    const {min, max} = this._state;
     const range = {
       min: {
         MINIMUM: 0,
-        MAXIMUM: this._state.max || 1,
+        MAXIMUM: max || 1,
       },
       max: {
-        MINIMUM: this._state.min || 0,
+        MINIMUM: min || 0,
         MAXIMUM: 1,
       },
     };
 
     return Math.max(range[key].MINIMUM,
       Math.min(value, range[key].MAXIMUM));
+  }
+
+  /**
+   * Convinience method for dispatching event.
+   *
+   * @param {String} typeArg - A DOMString representing the name of the event.
+   */
+  _dispatch(typeArg) {
+    const evt = new CustomEvent(typeArg, {bubbles: true, detail: this.value});
+    this.root.dispatchEvent(evt);
   }
 
   /**
@@ -275,6 +305,22 @@ class DoubleSlider {
   _removeEventListeners() {
     document.removeEventListener('mousemove', this._onMove);
     document.removeEventListener('mouseup', this._onEnd);
+  }
+
+  /**
+   * Convinience methdo for attaching the event handler to the root element.
+   */
+  addEventListener() {
+    const args = Array.from(arguments);
+    this.root.addEventListener(...args);
+  }
+
+  /**
+   * Convinience methdo for removing the event handler from the root element.
+   */
+  removeEventListener() {
+    const args = Array.from(arguments);
+    this.root.removeEventListener(...args);
   }
 }
 
