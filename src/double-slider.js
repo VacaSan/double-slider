@@ -88,10 +88,7 @@ class DoubleSlider {
     window.addEventListener('resize', this._onResize);
 
     this._target = null;
-    this._state = {
-      min: 0,
-      max: 1,
-    };
+    this._state = {};
 
     this._init();
   }
@@ -102,7 +99,10 @@ class DoubleSlider {
   _init() {
     const {min, max} = this.root.dataset;
     this._gBCR = this.root.getBoundingClientRect();
-    this.value = {min, max};
+    this.value = {
+      min: min || 0,
+      max: max || this.range,
+    };
   }
 
   /**
