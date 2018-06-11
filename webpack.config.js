@@ -1,4 +1,3 @@
-const webpack = require('webpack');
 const path = require('path');
 
 const libraryName = 'double-slider';
@@ -11,34 +10,34 @@ const libConfig = {
     filename: outputFile,
     library: libraryName,
     libraryTarget: 'umd',
-    umdNamedDefine: true
+    umdNamedDefine: true,
   },
   module: {
     rules: [
       {
         test: /\.js$/,
-        use: 'babel-loader'
-      }
-    ]
-  }
-}
+        use: 'babel-loader',
+      },
+    ],
+  },
+};
 
 const docsConfig = {
   entry: './src/index.js',
   output: {
     filename: 'double-slider.js',
-    path: path.resolve(__dirname, './docs')
+    path: path.resolve(__dirname, './docs'),
   },
   module: {
     rules: [
       {
         test: /\.js$/,
-        use: 'babel-loader'
-      }
-    ]
-  }
-}
+        use: 'babel-loader',
+      },
+    ],
+  },
+};
 
 module.exports = [
-  libConfig, docsConfig
-]
+  libConfig, docsConfig,
+];
