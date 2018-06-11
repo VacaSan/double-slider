@@ -83,6 +83,7 @@ class DoubleSlider {
       this.knob[knob.dataset.controls] = knob;
       // Attach event handler to each knob.
       knob.addEventListener('mousedown', this._onStart);
+      knob.addEventListener('touchstart', this._onStart);
     });
     window.addEventListener('resize', this._onResize);
 
@@ -91,7 +92,6 @@ class DoubleSlider {
       min: 0,
       max: 1,
     };
-
 
     this._init();
   }
@@ -297,6 +297,10 @@ class DoubleSlider {
   _addEventListeners() {
     document.addEventListener('mousemove', this._onMove);
     document.addEventListener('mouseup', this._onEnd);
+    // touch event handlers
+    document.addEventListener('touchmove', this._onMove);
+    document.addEventListener('touchend', this._onEnd);
+    document.addEventListener('touchcancel', this._onEnd);
   }
 
   /**
@@ -305,6 +309,10 @@ class DoubleSlider {
   _removeEventListeners() {
     document.removeEventListener('mousemove', this._onMove);
     document.removeEventListener('mouseup', this._onEnd);
+    // touch event handlers
+    document.removeEventListener('touchmove', this._onMove);
+    document.removeEventListener('touchend', this._onEnd);
+    document.removeEventListener('touchcancel', this._onEnd);
   }
 
   /**
