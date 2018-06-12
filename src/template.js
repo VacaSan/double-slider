@@ -14,6 +14,7 @@ const template = `
       aria-valuemax="75"
       >
       <div class="${style.controlKnob}"></div>
+      <div class="${style.focusRing}"></div>
     </div>
     <div class="${style.control} js-knob"
       data-controls="max"
@@ -24,6 +25,7 @@ const template = `
       aria-valuemax="100"
       >
       <div class="${style.controlKnob}"></div>
+      <div class="${style.focusRing}"></div>
     </div>
   </div>
 `;

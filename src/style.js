@@ -29,9 +29,6 @@ const style = css`
   }
   &-control {
     position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     top: 50%;
     left: 0;
     width: 42px;
@@ -43,17 +40,34 @@ const style = css`
     outline: none;
   }
   &-controlKnob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
     width: 21px;
     height: 21px;
     border-radius: 50%;
     background-color: currentColor;
-    transform: scale(0.571);
+    transform: translate(-50%, -50%) scale(0.571);
     transition: transform 100ms ease-out;
     pointer-events: none;
     will-change: transform;
   }
+  &-focusRing {
+    width: 100%;
+    height: 100%;
+    background-color: currentColor;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0);
+    border-radius: 50%;
+    transition: transform 210ms ease-out, opacity 210ms ease-out;
+  }
+  &-control:focus &-focusRing {
+    opacity: .25;
+    transform: scale(.8);
+  }
   &-control.active &-controlKnob {
-    transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 `;
 

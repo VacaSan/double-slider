@@ -70,6 +70,7 @@ class DoubleSlider {
     // Bind methods to the instance.
     this._animate = this._animate.bind(this);
     this._onEnd = this._onEnd.bind(this);
+    this._onFocus = this._onFocus.bind(this);
     this._onMove = this._onMove.bind(this);
     this._onResize = this._onResize.bind(this);
     this._onStart = this._onStart.bind(this);
@@ -84,6 +85,7 @@ class DoubleSlider {
         // Attach event handler to each knob.
         knob.addEventListener('mousedown', this._onStart);
         knob.addEventListener('touchstart', this._onStart);
+        knob.addEventListener('focus', this._onFocus);
       });
     window.addEventListener('resize', this._onResize);
 
@@ -103,6 +105,15 @@ class DoubleSlider {
       min: min || 0,
       max: max || this.range,
     };
+  }
+
+  /**
+   * Focus event handler.
+   *
+   * @param {Event} evt
+   */
+  _onFocus(evt) {
+    console.log('focus event fired on:', evt.target.dataset.controls);
   }
 
   /**
