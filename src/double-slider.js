@@ -117,14 +117,15 @@ class DoubleSlider {
 
     const name = evt.target.dataset.controls;
     this._target = this.knob[name];
-    // In firefox element doesn't get focus on click, hence this.
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=606011
-    this._target.classList.add('active');
+    // focus event never fires (we are preventing it with evt.preventDefault()),
+    // because the click event fires before focus.
+    this._target.focus();
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
     this._addEventListeners();
     window.requestAnimationFrame(this._animate);
+    // We don't want user to be able to scroll while using the slider.
     evt.preventDefault();
     // Dispatch sliderstart event.
     this._dispatch('sliderstart');
