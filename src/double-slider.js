@@ -1,5 +1,16 @@
 import template from './template';
 
+const KEY_IDS = {
+  ArrowLeft: 'ArrowLeft',
+  ArrowRight: 'ArrowRight',
+  ArrowUp: 'ArrowUp',
+  ArrowDown: 'ArrowDown',
+  Home: 'Home',
+  End: 'End',
+  PageUp: 'PageUp',
+  PageDown: 'PageDown',
+};
+
 /**
  * @typedef {Object} State
  * @property {number} min - The min value.
@@ -70,7 +81,7 @@ class DoubleSlider {
     // Bind methods to the instance.
     this._animate = this._animate.bind(this);
     this._onEnd = this._onEnd.bind(this);
-    this._onFocus = this._onFocus.bind(this);
+    this._onKeydown = this._onKeydown.bind(this);
     this._onMove = this._onMove.bind(this);
     this._onResize = this._onResize.bind(this);
     this._onStart = this._onStart.bind(this);
@@ -85,7 +96,7 @@ class DoubleSlider {
         // Attach event handler to each knob.
         knob.addEventListener('mousedown', this._onStart);
         knob.addEventListener('touchstart', this._onStart);
-        knob.addEventListener('focus', this._onFocus);
+        knob.addEventListener('keydown', this._onKeydown);
       });
     window.addEventListener('resize', this._onResize);
 
@@ -105,15 +116,6 @@ class DoubleSlider {
       min: min || 0,
       max: max || this.range,
     };
-  }
-
-  /**
-   * Focus event handler.
-   *
-   * @param {Event} evt
-   */
-  _onFocus(evt) {
-    console.log('focus event fired on:', evt.target.dataset.controls);
   }
 
   /**
@@ -182,6 +184,58 @@ class DoubleSlider {
     this._resizeTimer = setTimeout(() => {
       this._init();
     }, 250);
+  }
+
+  /**
+   * Keydown event handler.
+   *
+   * @param {Event} evt
+   */
+  _onKeydown(evt) {
+    const keyId = KEY_IDS[evt.key];
+
+    if (!keyId) {
+      return;
+    }
+
+    // Prevent page from scrolling due to key presses that would normally
+    // scroll the page
+    evt.preventDefault();
+    const name = evt.target.dataset.controls;
+    const value = this._getValueForKey(keyId, name);
+    this._setState({
+      [name]: value,
+    });
+  }
+
+  /**
+   * Computes a value for the given name, based on a keyboard key ID.
+   *
+   * @param {String} keyId
+   * @param {String} name
+   * @return {Number}
+   */
+  _getValueForKey(keyId, name) {
+    const value = this._state[name];
+
+    switch (keyId) {
+      case KEY_IDS.ArrowLeft:
+      case KEY_IDS.ArrowDown:
+        return value - 0.01;
+      case KEY_IDS.ArrowRight:
+      case KEY_IDS.ArrowUp:
+        return value + 0.01;
+      case KEY_IDS.PageDown:
+        return value - 0.1;
+      case KEY_IDS.PageUp:
+        return value + 0.1;
+      case KEY_IDS.End:
+        return 0;
+      case KEY_IDS.Home:
+        return 1;
+      default:
+        return value;
+    }
   }
 
   /**

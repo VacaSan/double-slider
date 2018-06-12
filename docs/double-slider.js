@@ -97,6 +97,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var KEY_IDS = {
+  ArrowLeft: 'ArrowLeft',
+  ArrowRight: 'ArrowRight',
+  ArrowUp: 'ArrowUp',
+  ArrowDown: 'ArrowDown',
+  Home: 'Home',
+  End: 'End',
+  PageUp: 'PageUp',
+  PageDown: 'PageDown'
+};
+
 /**
  * @typedef {Object} State
  * @property {number} min - The min value.
@@ -106,6 +117,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
  * DoubleSlider component
  */
+
 var DoubleSlider = function () {
   _createClass(DoubleSlider, [{
     key: 'range',
@@ -186,7 +198,7 @@ var DoubleSlider = function () {
     // Bind methods to the instance.
     this._animate = this._animate.bind(this);
     this._onEnd = this._onEnd.bind(this);
-    this._onFocus = this._onFocus.bind(this);
+    this._onKeydown = this._onKeydown.bind(this);
     this._onMove = this._onMove.bind(this);
     this._onResize = this._onResize.bind(this);
     this._onStart = this._onStart.bind(this);
@@ -200,7 +212,7 @@ var DoubleSlider = function () {
       // Attach event handler to each knob.
       knob.addEventListener('mousedown', _this2._onStart);
       knob.addEventListener('touchstart', _this2._onStart);
-      knob.addEventListener('focus', _this2._onFocus);
+      knob.addEventListener('keydown', _this2._onKeydown);
     });
     window.addEventListener('resize', this._onResize);
 
@@ -227,18 +239,6 @@ var DoubleSlider = function () {
         min: min || 0,
         max: max || this.range
       };
-    }
-
-    /**
-     * Focus event handler.
-     *
-     * @param {Event} evt
-     */
-
-  }, {
-    key: '_onFocus',
-    value: function _onFocus(evt) {
-      console.log('focus event fired on:', evt.target.dataset.controls);
     }
 
     /**
@@ -321,6 +321,62 @@ var DoubleSlider = function () {
       this._resizeTimer = setTimeout(function () {
         _this3._init();
       }, 250);
+    }
+
+    /**
+     * Keydown event handler.
+     *
+     * @param {Event} evt
+     */
+
+  }, {
+    key: '_onKeydown',
+    value: function _onKeydown(evt) {
+      var keyId = KEY_IDS[evt.key];
+
+      if (!keyId) {
+        return;
+      }
+
+      // Prevent page from scrolling due to key presses that would normally
+      // scroll the page
+      evt.preventDefault();
+      var name = evt.target.dataset.controls;
+      var value = this._getValueForKey(keyId, name);
+      this._setState(_defineProperty({}, name, value));
+    }
+
+    /**
+     * Computes a value for the given name, based on a keyboard key ID.
+     *
+     * @param {String} keyId
+     * @param {String} name
+     * @return {Number}
+     */
+
+  }, {
+    key: '_getValueForKey',
+    value: function _getValueForKey(keyId, name) {
+      var value = this._state[name];
+
+      switch (keyId) {
+        case KEY_IDS.ArrowLeft:
+        case KEY_IDS.ArrowDown:
+          return value - 0.01;
+        case KEY_IDS.ArrowRight:
+        case KEY_IDS.ArrowUp:
+          return value + 0.01;
+        case KEY_IDS.PageDown:
+          return value - 0.1;
+        case KEY_IDS.PageUp:
+          return value + 0.1;
+        case KEY_IDS.End:
+          return 0;
+        case KEY_IDS.Home:
+          return 1;
+        default:
+          return value;
+      }
     }
 
     /**
@@ -586,7 +642,7 @@ var _injectedCss = __webpack_require__(4);
 
 var style = _injectedCss.css.inject({
   _css: '.c-src{ position: relative; width: 100%; height: 48px } .c-src-trackWrap { position: absolute; top: 50%; width: 100%; height: 2px; background-color: rgba(0, 0, 0, .26); -webkit-transform: translateY(-50%); transform: translateY(-50%); overflow: hidden } .inverse .c-src-trackWrap { background-color: rgba(255, 255, 255, .26); } .c-src-track { position: absolute; width: 100%; height: 100%; -webkit-transform-origin: left top; transform-origin: left top; background-color: currentColor; -webkit-transform: scaleX(0) translateX(0); transform: scaleX(0) translateX(0); will-change: transform; } .c-src-control { position: absolute; top: 50%; left: 0; width: 42px; height: 42px; background-color: transparent; -webkit-transform: translateX(0) translate(-50%, -50%); transform: translateX(0) translate(-50%, -50%); cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; outline: none; } .c-src-controlKnob { position: absolute; top: 50%; left: 50%; width: 21px; height: 21px; border-radius: 50%; background-color: currentColor; -webkit-transform: translate(-50%, -50%) scale(0.571); transform: translate(-50%, -50%) scale(0.571); -webkit-transition: -webkit-transform 100ms ease-out; transition: -webkit-transform 100ms ease-out; transition: transform 100ms ease-out; transition: transform 100ms ease-out, -webkit-transform 100ms ease-out; pointer-events: none; will-change: transform; } .c-src-focusRing { width: 100%; height: 100%; background-color: currentColor; opacity: 0; pointer-events: none; -webkit-transform: scale(0); transform: scale(0); border-radius: 50%; -webkit-transition: opacity 210ms ease-out, -webkit-transform 210ms ease-out; transition: opacity 210ms ease-out, -webkit-transform 210ms ease-out; transition: transform 210ms ease-out, opacity 210ms ease-out; transition: transform 210ms ease-out, opacity 210ms ease-out, -webkit-transform 210ms ease-out; } .c-src-control:focus .c-src-focusRing { opacity: .25; -webkit-transform: scale(.8); transform: scale(.8); } .c-src-control.active .c-src-controlKnob { -webkit-transform: translate(-50%, -50%) scale(1); transform: translate(-50%, -50%) scale(1); }',
-  _hash: "1613996-1",
+  _hash: "955004979-1",
   toString: function toString() {
     return "c-src";
   },
