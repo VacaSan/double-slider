@@ -52,7 +52,7 @@ const style = css`
     pointer-events: none;
     will-change: transform;
   }
-  &-control:focus &-controlKnob {
+  &-control.active &-controlKnob {
     transform: scale(1);
   }
 `;

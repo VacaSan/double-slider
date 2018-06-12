@@ -117,9 +117,7 @@ class DoubleSlider {
 
     const name = evt.target.dataset.controls;
     this._target = this.knob[name];
-    // focus event never fires (we are preventing it with evt.preventDefault()),
-    // because the click event fires before focus.
-    this._target.focus();
+    this._target.classList.add('active');
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
@@ -232,7 +230,7 @@ class DoubleSlider {
 
   /**
    * Convinience method for setting the aria attributes.
-   * https://www.w3.org/TR/wai-aria-practices-1.1/#slidertwothumb 
+   * https://www.w3.org/TR/wai-aria-practices-1.1/#slidertwothumb
    */
   _setAriaAttributes() {
     const {min, max} = this.value;
