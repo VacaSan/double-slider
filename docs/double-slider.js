@@ -368,10 +368,33 @@ var DoubleSlider = function () {
 
       this.root.dataset.min = this.denormalize(min);
       this.root.dataset.max = this.denormalize(max);
+      this._setAriaAttributes();
 
       this.knob.max.style.transform = 'translateX(' + max * width + 'px) translate(-50%, -50%)';
       this.knob.min.style.transform = 'translateX(' + min * width + 'px) translate(-50%, -50%)';
       this.track.style.transform = 'translateX(' + min * width + 'px) scaleX(' + (max - min) + ')';
+    }
+
+    /**
+     * Convinience method for setting the aria attributes.
+     * https://www.w3.org/TR/wai-aria-practices-1.1/#slidertwothumb 
+     */
+
+  }, {
+    key: '_setAriaAttributes',
+    value: function _setAriaAttributes() {
+      var _value = this.value,
+          min = _value.min,
+          max = _value.max;
+
+      var range = this.range;
+
+      this.knob.max.setAttribute('aria-valuemin', min);
+      this.knob.max.setAttribute('aria-valuenow', max);
+      this.knob.max.setAttribute('aria-valuemax', range);
+      this.knob.min.setAttribute('aria-valuemin', 0);
+      this.knob.min.setAttribute('aria-valuenow', min);
+      this.knob.min.setAttribute('aria-valuemax', max);
     }
 
     /**
@@ -530,7 +553,7 @@ var _style2 = _interopRequireDefault(_style);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var template = '\n  <div class="' + _style2.default + '">\n    <div class="' + _style2.default.trackWrap + '">\n      <div class="' + _style2.default.track + ' js-track"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="min"\n      tabindex="0"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="max"\n      tabindex="0"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n  </div>\n';
+var template = '\n  <div class="' + _style2.default + '">\n    <div class="' + _style2.default.trackWrap + '">\n      <div class="' + _style2.default.track + ' js-track"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="min"\n      role="slider"\n      tabindex="0"\n      aria-valuemin="0"\n      aria-valuenow="0"\n      aria-valuemax="75"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n    <div class="' + _style2.default.control + ' js-knob"\n      data-controls="max"\n      role="slider"\n      tabindex="0"\n      aria-valuemin="0"\n      aria-valuenow="75"\n      aria-valuemax="100"\n      >\n      <div class="' + _style2.default.controlKnob + '"></div>\n    </div>\n  </div>\n';
 
 exports.default = template;
 module.exports = exports['default'];

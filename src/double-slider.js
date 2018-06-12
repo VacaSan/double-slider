@@ -78,13 +78,13 @@ class DoubleSlider {
     this.track = this.root.querySelector('.js-track');
     this.knob = {};
     Array.from(this.root.querySelectorAll('.js-knob'))
-    .forEach((knob) => {
-      // Hold a ref to the knob.
-      this.knob[knob.dataset.controls] = knob;
-      // Attach event handler to each knob.
-      knob.addEventListener('mousedown', this._onStart);
-      knob.addEventListener('touchstart', this._onStart);
-    });
+      .forEach((knob) => {
+        // Hold a ref to the knob.
+        this.knob[knob.dataset.controls] = knob;
+        // Attach event handler to each knob.
+        knob.addEventListener('mousedown', this._onStart);
+        knob.addEventListener('touchstart', this._onStart);
+      });
     window.addEventListener('resize', this._onResize);
 
     this._target = null;
@@ -219,6 +219,7 @@ class DoubleSlider {
     // Update data attributes.
     this.root.dataset.min = this.denormalize(min);
     this.root.dataset.max = this.denormalize(max);
+    this._setAriaAttributes();
 
     this.knob.max.style.transform =
       `translateX(${max * width}px) translate(-50%, -50%)`;
@@ -226,6 +227,22 @@ class DoubleSlider {
       `translateX(${min * width}px) translate(-50%, -50%)`;
     this.track.style.transform =
       `translateX(${min * width}px) scaleX(${max - min})`;
+  }
+
+  /**
+   * Convinience method for setting the aria attributes.
+   * https://www.w3.org/TR/wai-aria-practices-1.1/#slidertwothumb 
+   */
+  _setAriaAttributes() {
+    const {min, max} = this.value;
+    const range = this.range;
+
+    this.knob.max.setAttribute('aria-valuemin', min);
+    this.knob.max.setAttribute('aria-valuenow', max);
+    this.knob.max.setAttribute('aria-valuemax', range);
+    this.knob.min.setAttribute('aria-valuemin', 0);
+    this.knob.min.setAttribute('aria-valuenow', min);
+    this.knob.min.setAttribute('aria-valuemax', max);
   }
 
   /**
