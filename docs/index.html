@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>range-slider</title>
-  <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,42 +13,36 @@
     <div class="hero">
       <div class="slider"
         id="double-slider"
-        data-min="0"
+        data-min="25"
         data-max="75"
         data-range="100"
       ></div>
     </div>
-    <h2 class="title">Installation</h2>
+    <h2 class="title">Demos</h2>
     <div>
-      <pre><code>npm install --save double-slider</code></pre>
+      <div class="demo-box">
+        <h3 class="subtitle">Custom color</h3>
+        <div class="slider"
+          style="color:olivedrab;"
+          data-min="25"
+          data-max="75"
+          data-range="100"
+        ></div>
+        <div class="slider"
+          style="color:royalblue;"
+          data-min="25"
+          data-max="75"
+          data-range="100"
+        ></div>
+      </div>
     </div>
-    <h2 class="title">Usage</h2>
-    <div>
-      <pre><code data-language="html"><div class="slider"
-  id="double-slider"
-  data-min="0"
-  data-max="75"
-  data-range="100"
-></div></code></pre>
-    </div>
-    <p>Then in JS</p>
-    <pre><code data-language="js">import DoubleSlider from 'double-slider';
-
-const slider = new DoubleSlider(document.getElementById('double-slider'));
-slider.addEventListener('sliderend', (e) => {
-  const {min, max} = e.detail;
-  // ...
-})</code></pre>
   </section>
 
-  <script src="rainbow-custom.min.js"></script>
   <script src="./double-slider.js"></script>
   <script>
-    const slider = new DoubleSlider(document.getElementById('double-slider'));
-    const hero = document.querySelector('.hero');
-    function move(amount=10) {
-      hero.style.transform = `translateX(${amount}px)`;
-    }
+    Array.from(document.querySelectorAll('.slider'), (slider) => {
+      new DoubleSlider(slider);
+    });
   </script>
 </body>
 </html>

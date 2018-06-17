@@ -10,14 +10,19 @@ const style = css`
     top: 50%;
     width: 100%;
     height: 2px;
-    background-color: rgba(0, 0, 0, .26);
     transform: translateY(-50%);
     overflow: hidden;
 
-    .inverse & {
-      background-color: rgba(255, 255, 255, .26);
+    &::after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: currentColor;
+      opacity: .26;
     }
   }
+
   &-track {
     position: absolute;
     width: 100%;
@@ -27,6 +32,7 @@ const style = css`
     transform: scaleX(0) translateX(0);
     will-change: transform;
   }
+
   &-control {
     position: absolute;
     top: 50%;
@@ -39,6 +45,7 @@ const style = css`
     user-select: none;
     outline: none;
   }
+
   &-controlKnob {
     position: absolute;
     top: 50%;
@@ -52,6 +59,7 @@ const style = css`
     pointer-events: none;
     will-change: transform;
   }
+
   &-focusRing {
     width: 100%;
     height: 100%;
@@ -62,10 +70,12 @@ const style = css`
     border-radius: 50%;
     transition: transform 210ms ease-out, opacity 210ms ease-out;
   }
+
   &-control:focus &-focusRing {
     opacity: .25;
     transform: scale(.8);
   }
+
   &-control.active &-controlKnob {
     transform: translate(-50%, -50%) scale(1);
   }

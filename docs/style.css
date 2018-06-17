@@ -13,10 +13,6 @@ body {
   color: rgba(0,0,0,.87);
 }
 
-pre {
-  margin: 0;
-}
-
 .demo-wrap {
   max-width: 760px;
   padding: 40px 16px 100px;
@@ -37,6 +33,13 @@ pre {
   border-bottom: 1px solid currentColor;
 }
 
+.subtitle {
+  font-size: 1rem;
+  line-height: 1.75rem;
+  font-weight: 400;
+  letter-spacing: .00937em;
+}
+
 .hero {
   display: flex;
   align-items: center;
@@ -46,13 +49,10 @@ pre {
   background-color: #F2F2F2;
 }
 
-pre {
-  font-size: 14px;
-  line-height: 20px;
-  background-color: #F7F7F7;
-  overflow-x: auto
-}
-
 .slider {
   width: 100%;
+}
+
+.demo-box {
+  margin-top: 32px;
 }
