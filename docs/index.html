@@ -46,7 +46,10 @@ slider.addEventListener('sliderend', (e) => {
   <script src="./double-slider.js"></script>
   <script>
     const slider = new DoubleSlider(document.getElementById('double-slider'));
-
+    const hero = document.querySelector('.hero');
+    function move(amount=10) {
+      hero.style.transform = `translateX(${amount}px)`;
+    }
   </script>
 </body>
 </html>

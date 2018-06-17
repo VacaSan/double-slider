@@ -142,7 +142,7 @@ var DoubleSlider = function () {
     set: function set(value) {
       var range = parseInt(value);
       this.root.dataset.range = range;
-      this._init();
+      this.layout();
     }
 
     /**
@@ -219,17 +219,17 @@ var DoubleSlider = function () {
     this._target = null;
     this._state = {};
 
-    this._init();
+    this.layout();
   }
 
   /**
-   * Sets initial state.
+   * Recomputes the dimensions and re-lays out the component.
    */
 
 
   _createClass(DoubleSlider, [{
-    key: '_init',
-    value: function _init() {
+    key: 'layout',
+    value: function layout() {
       var _root$dataset = this.root.dataset,
           min = _root$dataset.min,
           max = _root$dataset.max;
@@ -319,7 +319,7 @@ var DoubleSlider = function () {
 
       clearTimeout(this._resizeTimer);
       this._resizeTimer = setTimeout(function () {
-        _this3._init();
+        _this3.layout();
       }, 250);
     }
 

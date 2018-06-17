@@ -40,7 +40,7 @@ class DoubleSlider {
   set range(value) {
     const range = parseInt(value);
     this.root.dataset.range = range;
-    this._init();
+    this.layout();
   }
 
   /**
@@ -103,13 +103,13 @@ class DoubleSlider {
     this._target = null;
     this._state = {};
 
-    this._init();
+    this.layout();
   }
 
   /**
-   * Sets initial state.
+   * Recomputes the dimensions and re-lays out the component.
    */
-  _init() {
+  layout() {
     const {min, max} = this.root.dataset;
     this._gBCR = this.root.getBoundingClientRect();
     this.value = {
@@ -182,7 +182,7 @@ class DoubleSlider {
   _onResize() {
     clearTimeout(this._resizeTimer);
     this._resizeTimer = setTimeout(() => {
-      this._init();
+      this.layout();
     }, 250);
   }
 
