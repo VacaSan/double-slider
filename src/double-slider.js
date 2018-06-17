@@ -138,8 +138,6 @@ class DoubleSlider {
     window.requestAnimationFrame(this._animate);
     // We don't want user to be able to scroll while using the slider.
     evt.preventDefault();
-    // Dispatch sliderstart event.
-    this._dispatch('sliderstart');
   }
 
   /**
@@ -154,8 +152,8 @@ class DoubleSlider {
 
     const pageX = evt.pageX || evt.touches[0].pageX;
     this._currentX = pageX - this._gBCR.left;
-    // Dispatch slidermove event.
-    this._dispatch('slidermove');
+    // Dispatch slider:input event.
+    this._dispatch('slider:input');
   }
 
   /**
@@ -171,8 +169,8 @@ class DoubleSlider {
     this._target.classList.remove('active');
     this._target = null;
     this._removeEventListeners();
-    // Dispatch sliderend event.
-    this._dispatch('sliderend');
+    // Dispatch slider:change event.
+    this._dispatch('slider:change');
   }
 
   /**
@@ -206,6 +204,9 @@ class DoubleSlider {
     this._setState({
       [name]: value,
     });
+    // Dispatch events.
+    this._dispatch('slider:input');
+    this._dispatch('slider:change');
   }
 
   /**
@@ -368,7 +369,7 @@ class DoubleSlider {
    * @param {String} typeArg - A DOMString representing the name of the event.
    */
   _dispatch(typeArg) {
-    const evt = new CustomEvent(typeArg, {bubbles: true, detail: this.value});
+    const evt = new CustomEvent(typeArg, {bubbles: true, detail: this});
     this.root.dispatchEvent(evt);
   }
 
