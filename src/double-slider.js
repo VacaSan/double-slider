@@ -229,9 +229,9 @@ class DoubleSlider {
         return value - 0.1;
       case KEY_IDS.PageUp:
         return value + 0.1;
-      case KEY_IDS.End:
-        return 0;
       case KEY_IDS.Home:
+        return 0;
+      case KEY_IDS.End:
         return 1;
       default:
         return value;
