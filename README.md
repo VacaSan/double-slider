@@ -1,12 +1,12 @@
 # Double-Slider
 
-A simple two-thumb slider component.
+Double-Slider represents an implementation of a range (two-thumb) slider component. It is based around Material Design's looks and feel, and conforms to the WAI-ARIA [slider authoring practices](https://www.w3.org/TR/wai-aria-practices-1.1/#slidertwothumb).
 
 ## Demo
 
 https://vacasan.github.io/double-slider/
 
-## Install
+## Installation
 
 ```sh
 npm install --save double-slider
@@ -15,59 +15,60 @@ npm install --save double-slider
 ## Usage
 
 ```html
-<div id="my-slider"></div>
+<div id="my-slider"
+  data-min="25"
+  data-max="75"
+  data-range="100"
+></div>
 ```
+
+then in JS
 
 ```js
 import DoubleSlider from 'double-slider';
 
-const mySlider = new DoubleSlider({ id: 'my-slider' });
+const mySlider = new DoubleSlider(document.getElementById('my-slider'));
+mySlider.addEventListener('slider:change', () => {
+  const {min, max} = mySlider.value;
+  console.log(`Min is: ${min}, max is: ${max}`);
+});
 ```
 
-## API
+### Initializing the slider with custom ranges/values
 
-### DoubleSlider(*options*)
+When `DoubleSlider` is initialized, it reads the element's `data-min`, `data-max` and `data-range` values if present and uses them to set the components `value` and `range` properties.
 
-#### Options: object
+DoubleSlider requires that `data-range` attribute is provided. An error will be thrown if it is not defined.
 
-`id: string` (*required*)
-  String representing the DOM node.
+### Double Slider Component API
 
-`onStart: function` (*optional*)
-  Function to be called on drag start. Receives a `value` object as an argument.
+#### Properties
 
-`onMove: function` (*optional*)
-  Function to be called while dragging. Receives a `value` object as an argument.
+| Property Name | Type | Description |
+| --- | --- | --- |
+| `value` | `object` | The current min and max values of the slider. |
+| `range` | `number` | The maximum value a slider can have. |
 
-`onEnd: function` (*optional*)
-  Function to be called on drag end. Receives a `value` object as an argument.
+#### Methods
 
-`color: string` (*optional*)
-  Define the color of the component (defaults to #3F51B5).
+| Method Signature | Description |
+| --- | --- |
+| `layout() => void` | Recomputes the dimensions and re-lays out the component. This should be called if the dimensions of the slider itself or any of its parent element change programmatically (it is called automatically on resize). |
 
-`inverse: bool` (*optional*)
-  Set to `true`, for usage on dark backgrounds (defaults to `false`).
+#### Events
 
-```js
-const mySlider = new DoubleSlider({
-  id: 'my-slider',
-  onEnd: value => {
-    // ...
-  }
-})
-```
+`DoubleSlider` emits a `slider:input` custom event from its root element whenever the slider value is changed by way of a user event, e.g. when a user is dragging the lisder or changing the value using the arrow keys. The `detail` property of the event is set to the slider instance that was affected.
 
-### DoubleSlider.value
+`DoubleSlider` emits a `slider:change` custom event from its root element whenever the slider value is changed _and committed_ by way of a user event, e.g. when a user stops dragging the slider or changes the value using the arrow keys. The `detail` property of the event is set to the slider instance that was affected.
 
-The `DoubleSlider.value` property sets or gets the `min`, `max` and `range` vlues of the component.
+### Theming
 
-`value: object`
+All thematic elements of sliders make use of `currentColor`. This lets you use the `color` value to apply theming to sliders.
 
-```js
-mySlider.vlaue = { max: 5, range: 12 };
-mySlider.vlaue = { range: 7 };
-
-mySlider.value; // { min: 0, max: 5, range: 7 }
+```css
+.slider {
+  color: royalblue;
+}
 ```
 
 ## Licence
