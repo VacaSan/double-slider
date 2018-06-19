@@ -54,6 +54,8 @@ DoubleSlider requires that `data-range` attribute is provided. An error will be 
 | Method Signature | Description |
 | --- | --- |
 | `layout() => void` | Recomputes the dimensions and re-lays out the component. This should be called if the dimensions of the slider itself or any of its parent element change programmatically (it is called automatically on resize). |
+| `addEventListener(type: string, handler: EventListener) => void` | Adds an event listener `handler` for event type `type` to slider's root element |
+| `removeEventListener(type: string, handler: EventListener) => void` | Removes an event listener `handler` for event type `type` from the slider's root element |
 
 #### Events
 
