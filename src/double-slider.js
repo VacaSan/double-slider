@@ -25,21 +25,26 @@ class DoubleSlider {
    * @return {Number}
    */
   get range() {
-    const range = this.root.dataset.range;
-    if (!range) {
-      throw new Error('Range must be defined');
-    }
-    return parseInt(range);
+    const {rangemin, rangemax} = this.root.dataset;
+    const min = parseInt(rangemin);
+    const max = parseInt(rangemax);
+
+    return {
+      min: min,
+      max: max - min,
+    };
   }
 
   /**
    * Should be only set from outside.
    *
-   * @param {Number|String} value
+   * @param {Object} value
+   * @property {number|string} value.min
+   * @property {number|string} value.max
    */
   set range(value) {
-    const range = parseInt(value);
-    this.root.dataset.range = range;
+    this.root.dataset.rangemin = parseInt(value.min);
+    this.root.dataset.rangemax = parseInt(value.max);
     this.layout();
   }
 
@@ -111,10 +116,11 @@ class DoubleSlider {
    */
   layout() {
     const {min, max} = this.root.dataset;
+    const {min: rangemin, max: rangemax} = this.range;
     this._gBCR = this.root.getBoundingClientRect();
     this.value = {
-      min: min || 0,
-      max: max || this.range,
+      min: min || rangemin,
+      max: max || rangemax,
     };
   }
 
@@ -246,7 +252,8 @@ class DoubleSlider {
    * @return {number} - Normalized value.
    */
   normalize(value) {
-    return (value / this.range);
+    const {min, max} = this.range;
+    return ((value - min) / max);
   }
 
   /**
@@ -256,7 +263,8 @@ class DoubleSlider {
    * @return {number} - Denormalized value.
    */
   denormalize(value) {
-    return Math.round(value * this.range);
+    const {min, max} = this.range;
+    return Math.round(value * max) + min;
   }
 
   /**
@@ -300,12 +308,12 @@ class DoubleSlider {
    */
   _setAriaAttributes() {
     const {min, max} = this.value;
-    const range = this.range;
+    const {min: rangemin, max: rangemax} = this.range;
 
     this.knob.max.setAttribute('aria-valuemin', min);
     this.knob.max.setAttribute('aria-valuenow', max);
-    this.knob.max.setAttribute('aria-valuemax', range);
-    this.knob.min.setAttribute('aria-valuemin', 0);
+    this.knob.max.setAttribute('aria-valuemax', rangemax);
+    this.knob.min.setAttribute('aria-valuemin', rangemin);
     this.knob.min.setAttribute('aria-valuenow', min);
     this.knob.min.setAttribute('aria-valuemax', max);
   }

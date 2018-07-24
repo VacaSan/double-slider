@@ -126,22 +126,30 @@ var DoubleSlider = function () {
      * @return {Number}
      */
     get: function get() {
-      var range = this.root.dataset.range;
-      if (!range) {
-        throw new Error('Range must be defined');
-      }
-      return parseInt(range);
+      var _root$dataset = this.root.dataset,
+          rangemin = _root$dataset.rangemin,
+          rangemax = _root$dataset.rangemax;
+
+      var min = parseInt(rangemin);
+      var max = parseInt(rangemax);
+
+      return {
+        min: min,
+        max: max - min
+      };
     }
 
     /**
      * Should be only set from outside.
      *
-     * @param {Number|String} value
+     * @param {Object} value
+     * @property {number|string} value.min
+     * @property {number|string} value.max
      */
     ,
     set: function set(value) {
-      var range = parseInt(value);
-      this.root.dataset.range = range;
+      this.root.dataset.rangemin = parseInt(value.min);
+      this.root.dataset.rangemax = parseInt(value.max);
       this.layout();
     }
 
@@ -230,14 +238,17 @@ var DoubleSlider = function () {
   _createClass(DoubleSlider, [{
     key: 'layout',
     value: function layout() {
-      var _root$dataset = this.root.dataset,
-          min = _root$dataset.min,
-          max = _root$dataset.max;
+      var _root$dataset2 = this.root.dataset,
+          min = _root$dataset2.min,
+          max = _root$dataset2.max;
+      var _range = this.range,
+          rangemin = _range.min,
+          rangemax = _range.max;
 
       this._gBCR = this.root.getBoundingClientRect();
       this.value = {
-        min: min || 0,
-        max: max || this.range
+        min: min || rangemin,
+        max: max || rangemax
       };
     }
 
@@ -390,7 +401,11 @@ var DoubleSlider = function () {
   }, {
     key: 'normalize',
     value: function normalize(value) {
-      return value / this.range;
+      var _range2 = this.range,
+          min = _range2.min,
+          max = _range2.max;
+
+      return (value - min) / max;
     }
 
     /**
@@ -403,7 +418,11 @@ var DoubleSlider = function () {
   }, {
     key: 'denormalize',
     value: function denormalize(value) {
-      return Math.round(value * this.range);
+      var _range3 = this.range,
+          min = _range3.min,
+          max = _range3.max;
+
+      return Math.round(value * max) + min;
     }
 
     /**
@@ -456,13 +475,15 @@ var DoubleSlider = function () {
       var _value = this.value,
           min = _value.min,
           max = _value.max;
+      var _range4 = this.range,
+          rangemin = _range4.min,
+          rangemax = _range4.max;
 
-      var range = this.range;
 
       this.knob.max.setAttribute('aria-valuemin', min);
       this.knob.max.setAttribute('aria-valuenow', max);
-      this.knob.max.setAttribute('aria-valuemax', range);
-      this.knob.min.setAttribute('aria-valuemin', 0);
+      this.knob.max.setAttribute('aria-valuemax', rangemax);
+      this.knob.min.setAttribute('aria-valuemin', rangemin);
       this.knob.min.setAttribute('aria-valuenow', min);
       this.knob.min.setAttribute('aria-valuemax', max);
     }
@@ -643,7 +664,7 @@ var _injectedCss = __webpack_require__(4);
 
 var style = _injectedCss.css.inject({
   _css: '.c-src{ position: relative; width: 100%; height: 48px } .c-src-trackWrap { position: absolute; top: 50%; width: 100%; height: 2px; -webkit-transform: translateY(-50%); transform: translateY(-50%); overflow: hidden } .c-src-trackWrap::after { content: ""; display: block; width: 100%; height: 100%; background: currentColor; opacity: .26; } .c-src-track { position: absolute; width: 100%; height: 100%; -webkit-transform-origin: left top; transform-origin: left top; background-color: currentColor; -webkit-transform: scaleX(0) translateX(0); transform: scaleX(0) translateX(0); will-change: transform; } .c-src-control { position: absolute; top: 50%; left: 0; width: 42px; height: 42px; background-color: transparent; -webkit-transform: translateX(0) translate(-50%, -50%); transform: translateX(0) translate(-50%, -50%); cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; outline: none; } .c-src-controlKnob { position: absolute; top: 50%; left: 50%; width: 21px; height: 21px; border-radius: 50%; background-color: currentColor; -webkit-transform: translate(-50%, -50%) scale(0.571); transform: translate(-50%, -50%) scale(0.571); -webkit-transition: -webkit-transform 100ms ease-out; transition: -webkit-transform 100ms ease-out; transition: transform 100ms ease-out; transition: transform 100ms ease-out, -webkit-transform 100ms ease-out; pointer-events: none; will-change: transform; } .c-src-focusRing { width: 100%; height: 100%; background-color: currentColor; opacity: 0; pointer-events: none; -webkit-transform: scale(0); transform: scale(0); border-radius: 50%; -webkit-transition: opacity 210ms ease-out, -webkit-transform 210ms ease-out; transition: opacity 210ms ease-out, -webkit-transform 210ms ease-out; transition: transform 210ms ease-out, opacity 210ms ease-out; transition: transform 210ms ease-out, opacity 210ms ease-out, -webkit-transform 210ms ease-out; } .c-src-control:focus .c-src-focusRing { opacity: .25; -webkit-transform: scale(.8); transform: scale(.8); } .c-src-control.active .c-src-controlKnob { -webkit-transform: translate(-50%, -50%) scale(1); transform: translate(-50%, -50%) scale(1); }',
-  _hash: "955004979-1",
+  _hash: "1613996-1",
   toString: function toString() {
     return "c-src";
   },
