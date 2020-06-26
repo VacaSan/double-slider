@@ -1,0 +1,129 @@
+<style>
+  *,
+  *::after,
+  *::before {
+    box-sizing: border-box;
+  }
+  :host {
+    display: block;
+    color: #0375ff;
+  }
+  :host([hidden]) {
+    display: none;
+  }
+  :host([disabled]) {
+    color: #9e9e9e;
+    pointer-events: none;
+  }
+  .double-slider {
+    position: relative;
+    width: 100%;
+    height: 48px;
+    color: inherit;
+  }
+  .track-wrap {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    height: 2px;
+    border-radius: 1px;
+    transform: translateY(-50%);
+    overflow: hidden;
+  }
+  .track-wrap::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: currentColor;
+    opacity: 0.26;
+  }
+  .track {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: left top;
+    background-color: currentColor;
+    transform: translateX(0) scaleX(0);
+    will-change: transform;
+  }
+  .thumb {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    color: inherit;
+    background: none;
+    transform: translateX(0) translate(-50%, -50%);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    border: 0;
+  }
+  .thumb::after {
+    display: block;
+    content: "";
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background-color: currentColor;
+    transform: scale(0.571);
+    transition: transform 100ms ease-out;
+    pointer-events: none;
+    will-change: transform;
+    box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2),
+      0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+  }
+  .thumb:active::after {
+    transform: scale(1);
+  }
+  .thumb::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background-color: currentColor;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0);
+    border-radius: 50%;
+    transition: transform 210ms ease-out, opacity 210ms ease-out;
+  }
+  .thumb:focus:not(:active)::before {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+</style>
+
+<div class="double-slider">
+  <div class="track-wrap">
+    <div id="track" class="track"></div>
+  </div>
+
+  <button
+    class="thumb"
+    id="thumb-min"
+    role="slider"
+    aria-valuemin=""
+    aria-valuenow=""
+    aria-valuemax=""
+    aria-valuetext=""
+  ></button>
+  <button
+    class="thumb"
+    id="thumb-max"
+    role="slider"
+    aria-valuemin=""
+    aria-valuenow=""
+    aria-valuemax=""
+    aria-valuetext=""
+  ></button>
+</div>

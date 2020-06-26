@@ -1,415 +1,313 @@
-import template from './template';
+import { interpolate, clamp, quantize } from "./utils";
+import contents from "./template-contents.html";
 
-const KEY_IDS = {
-  ArrowLeft: 'ArrowLeft',
-  ArrowRight: 'ArrowRight',
-  ArrowUp: 'ArrowUp',
-  ArrowDown: 'ArrowDown',
-  Home: 'Home',
-  End: 'End',
-  PageUp: 'PageUp',
-  PageDown: 'PageDown',
-};
+const doc = document;
+const MAX = "max";
+const MIN = "min";
+const STEP = "step";
+const VALUE_MAX = "valuemax";
+const VALUE_MIN = "valuemin";
+const DEFAULT_MAX = 100;
+const DEFAULT_MIN = 0;
+const DEFAULT_STEP = 0; // continuous
 
-/**
- * @typedef {Object} State
- * @property {number} min - The min value.
- * @property {number} max - The max value.
- */
+const template = doc.createElement("template");
 
-/**
- * DoubleSlider component
- */
-class DoubleSlider {
-  /**
-   * @return {Number}
-   */
-  get range() {
-    const range = this.root.dataset.range;
-    if (!range) {
-      throw new Error('Range must be defined');
-    }
-    return parseInt(range);
+// TODO inline contents
+template.innerHTML = contents;
+
+function createStore(initialState = {}) {
+  let state = initialState;
+  let listeners = [];
+
+  function setState(partial, forceUpdate = false) {
+    const update = typeof partial === "function" ? partial(state) : partial;
+
+    const shouldUpdate = Object.keys(update).reduce((acc, key) => {
+      return acc || update[key] !== state[key];
+    }, forceUpdate);
+
+    if (!shouldUpdate) return;
+
+    const nextState = Object.assign({}, state, update);
+
+    listeners.forEach(fn => fn && fn(nextState, state));
+    state = nextState;
   }
 
-  /**
-   * Should be only set from outside.
-   *
-   * @param {Number|String} value
-   */
-  set range(value) {
-    const range = parseInt(value);
-    this.root.dataset.range = range;
-    this.layout();
+  function getState() {
+    return state;
   }
 
-  /**
-   * @return {State} - Denormalized state.
-   */
-  get value() {
-    const {min, max} = this._state;
-    return {
-      min: this.denormalize(min),
-      max: this.denormalize(max),
+  function connect(fn) {
+    listeners.push(fn);
+
+    fn(state);
+
+    return () => {
+      const index = listeners.indexOf(fn);
+      listeners.splice(index, 1);
     };
   }
 
-  /**
-   * Normalizes the passed object, and updates the local state.
-   *
-   * @param {State} partialState
-   */
-  set value(partialState) {
-    let _partialState = {};
-    Object.keys(partialState)
-      .forEach((key) => {
-        const value = partialState[key];
-        _partialState[key] = this.normalize(parseInt(value));
-      });
-    this._setState(_partialState);
+  return Object.freeze({
+    setState,
+    getState,
+    connect,
+  });
+}
+
+function validate({ max, min, step }) {
+  if (max <= min) throw new RangeError("min must be lower than max");
+  if (step < 0) throw new RangeError("step must be greater than zero");
+}
+
+class DoubleSlider extends HTMLElement {
+  get min() {
+    return this.store.getState().min;
+  }
+  set min(value) {
+    let { max, valuemax, valuemin } = this.store.getState();
+    valuemin = clamp(valuemin, value, valuemax);
+    valuemax = clamp(valuemax, valuemin, max);
+    this.store.setState({ min: value, valuemax, valuemin });
   }
 
-  /**
-   * Creates new DoubleSlider instance.
-   *
-   * @param {HTMLElement} root - Host element.
-   */
-  constructor(root) {
-    this.root = root;
-    this.root.innerHTML = template;
-
-    // Bind methods to the instance.
-    this._animate = this._animate.bind(this);
-    this._onEnd = this._onEnd.bind(this);
-    this._onKeydown = this._onKeydown.bind(this);
-    this._onMove = this._onMove.bind(this);
-    this._onResize = this._onResize.bind(this);
-    this._onStart = this._onStart.bind(this);
-
-    // Cache DOM, and bind event handlers.
-    this.track = this.root.querySelector('.js-track');
-    this.knob = {};
-    Array.from(this.root.querySelectorAll('.js-knob'))
-      .forEach((knob) => {
-        // Hold a ref to the knob.
-        this.knob[knob.dataset.controls] = knob;
-        // Attach event handler to each knob.
-        knob.addEventListener('mousedown', this._onStart);
-        knob.addEventListener('touchstart', this._onStart);
-        knob.addEventListener('keydown', this._onKeydown);
-      });
-    window.addEventListener('resize', this._onResize);
-
-    this._target = null;
-    this._state = {};
-
-    this.layout();
+  get max() {
+    return this.store.getState().max;
+  }
+  set max(value) {
+    let { min, valuemax, valuemin } = this.store.getState();
+    valuemax = clamp(valuemax, valuemin, value);
+    valuemin = clamp(valuemin, min, valuemax);
+    this.store.setState({ max: value, valuemax, valuemin });
   }
 
-  /**
-   * Recomputes the dimensions and re-lays out the component.
-   */
-  layout() {
-    const {min, max} = this.root.dataset;
-    this._gBCR = this.root.getBoundingClientRect();
-    this.value = {
-      min: min || 0,
-      max: max || this.range,
-    };
+  get step() {
+    return this.store.getState().step;
+  }
+  set step(value) {
+    this.store.setState({ step: value });
   }
 
-  /**
-   * Touchstart/mousedown event handler.
-   *
-   * @param {Event} evt
-   */
-  _onStart(evt) {
-    if (this._target) {
-      return;
-    }
-
-    const name = evt.target.dataset.controls;
-    this._target = this.knob[name];
-    this._target.classList.add('active');
-
-    const pageX = evt.pageX || evt.touches[0].pageX;
-    this._currentX = pageX - this._gBCR.left;
-    this._addEventListeners();
-    window.requestAnimationFrame(this._animate);
-    // We don't want user to be able to scroll while using the slider.
-    evt.preventDefault();
+  get valuemax() {
+    return this.store.getState().valuemax;
+  }
+  set valuemax(value) {
+    this.store.setState(({ max, valuemin }) => ({
+      valuemax: clamp(value, valuemin, max),
+    }));
   }
 
-  /**
-   * Touchmove/mousemove event handler.
-   *
-   * @param {Event} evt
-   */
-  _onMove(evt) {
-    if (!this._target) {
-      return;
-    }
-
-    const pageX = evt.pageX || evt.touches[0].pageX;
-    this._currentX = pageX - this._gBCR.left;
-    // Dispatch slider:input event.
-    this._dispatch('slider:input');
+  get valuemin() {
+    return this.store.getState().valuemin;
+  }
+  set valuemin(value) {
+    this.store.setState(({ min, valuemax }) => ({
+      valuemin: clamp(value, min, valuemax),
+    }));
   }
 
-  /**
-   * Touchend/touchcance/mouseup event handler.
-   *
-   * @param {Event} evt
-   */
-  _onEnd(evt) {
-    if (!this._target) {
-      return;
-    }
-
-    this._target.classList.remove('active');
-    this._target = null;
-    this._removeEventListeners();
-    // Dispatch slider:change event.
-    this._dispatch('slider:change');
+  static get observedAttributes() {
+    return [MIN, MAX, STEP, VALUE_MAX, VALUE_MIN];
   }
 
-  /**
-   * Resize event handler. Fires after the resize has finished.
-   * https://css-tricks.com/snippets/jquery/done-resizing-event/
-   */
-  _onResize() {
-    clearTimeout(this._resizeTimer);
-    this._resizeTimer = setTimeout(() => {
-      this.layout();
-    }, 250);
-  }
+  constructor() {
+    super();
 
-  /**
-   * Keydown event handler.
-   *
-   * @param {Event} evt
-   */
-  _onKeydown(evt) {
-    const keyId = KEY_IDS[evt.key];
+    // initialize state
+    const max = Number(this.getAttribute(MAX) || DEFAULT_MAX);
+    const min = Number(this.getAttribute(MIN) || DEFAULT_MIN);
+    const step = Number(this.getAttribute(STEP) || DEFAULT_STEP);
 
-    if (!keyId) {
-      return;
-    }
+    let valuemax = Number(this.getAttribute(VALUE_MAX) || max);
+    let valuemin = Number(this.getAttribute(VALUE_MIN) || min);
+    valuemax = clamp(valuemax, valuemin, max);
+    valuemin = clamp(valuemin, min, valuemax);
 
-    // Prevent page from scrolling due to key presses that would normally
-    // scroll the page
-    evt.preventDefault();
-    const name = evt.target.dataset.controls;
-    const value = this._getValueForKey(keyId, name);
-    this._setState({
-      [name]: value,
+    validate({ max, min, step });
+
+    this.store = createStore({
+      max,
+      min,
+      step,
+      valuemax,
+      valuemin,
     });
-    // Dispatch events.
-    this._dispatch('slider:input');
-    this._dispatch('slider:change');
+
+    // attach shadow dom
+    const shadowRoot = this.attachShadow({ mode: "closed" });
+    shadowRoot.appendChild(template.content.cloneNode(true));
+
+    // cache dom
+    this.$min = shadowRoot.querySelector("#thumb-min");
+    this.$max = shadowRoot.querySelector("#thumb-max");
+    this.$track = shadowRoot.querySelector("#track");
+
+    // TODO attach event handlers (keydown...)
+
+    // bind methods
+    this.render = this.render.bind(this);
   }
 
-  /**
-   * Computes a value for the given name, based on a keyboard key ID.
-   *
-   * @param {String} keyId
-   * @param {String} name
-   * @return {Number}
-   */
-  _getValueForKey(keyId, name) {
-    const value = this._state[name];
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (newValue === oldValue) return;
 
-    switch (keyId) {
-      case KEY_IDS.ArrowLeft:
-      case KEY_IDS.ArrowDown:
-        return value - 0.01;
-      case KEY_IDS.ArrowRight:
-      case KEY_IDS.ArrowUp:
-        return value + 0.01;
-      case KEY_IDS.PageDown:
-        return value - 0.1;
-      case KEY_IDS.PageUp:
-        return value + 0.1;
-      case KEY_IDS.Home:
-        return 0;
-      case KEY_IDS.End:
-        return 1;
-      default:
-        return value;
-    }
+    // kebab to camel case?
+    this.store.setState({ [name]: Number(newValue) });
   }
 
-  /**
-   * Normalizes the value.
-   *
-   * @param {number} value - Number to be normalized.
-   * @return {number} - Normalized value.
-   */
-  normalize(value) {
-    return (value / this.range);
-  }
+  connectedCallback() {
+    [MAX, MIN, STEP, VALUE_MAX, VALUE_MIN].forEach(prop =>
+      this.upgradeProperty(prop)
+    );
 
-  /**
-   * Denoramlizes the value.
-   *
-   * @param {number} value - Number to be denormalized.
-   * @return {number} - Denormalized value.
-   */
-  denormalize(value) {
-    return Math.round(value * this.range);
-  }
+    this.gBCR = this.getBoundingClientRect();
 
-  /**
-   * Updates the state based on the current position of the knob.
-   */
-  _animate() {
-    if (!this._target) {
-      return;
-    }
+    // subscribe to state changes
+    this.unsubscribe = this.store.connect(this.render);
 
-    window.requestAnimationFrame(this._animate);
-    const name = this._target.dataset.controls;
-    this._setState({
-      [name]: this._currentX / this._gBCR.width,
+    // can we re-use handler logic? and should we do this in connectedCallback?
+    this.unbindMax = bindDragHandler(this.$max, ({ initial, movement }) => {
+      const { max, min, step, valuemin } = this.store.getState();
+
+      const { width, left } = this.gBCR;
+
+      const inputRange = [left, left + width];
+      const outputRange = [min, max];
+
+      let valuemax = interpolate(initial + movement, inputRange, outputRange);
+
+      if (step && step > 0) valuemax = quantize(valuemax, step);
+
+      this.store.setState({
+        valuemax: clamp(valuemax, valuemin, max),
+      });
+      // TODO dispatch events
+    });
+
+    this.unbindMin = bindDragHandler(this.$min, ({ initial, movement }) => {
+      const { max, min, step, valuemax } = this.store.getState();
+
+      const { width, left } = this.gBCR;
+
+      const inputRange = [left, left + width];
+      const outputRange = [min, max];
+
+      let valuemin = interpolate(initial + movement, inputRange, outputRange);
+
+      if (step && step > 0) valuemin = quantize(valuemin, step);
+
+      this.store.setState({
+        valuemin: clamp(valuemin, min, valuemax),
+      });
     });
   }
 
-  /**
-   * Updates the components view.
-   */
-  _render() {
-    const {min, max} = this._state;
-    const {width} = this._gBCR;
-
-    // Update data attributes.
-    this.root.dataset.min = this.denormalize(min);
-    this.root.dataset.max = this.denormalize(max);
-    this._setAriaAttributes();
-
-    this.knob.max.style.transform =
-      `translateX(${max * width}px) translate(-50%, -50%)`;
-    this.knob.min.style.transform =
-      `translateX(${min * width}px) translate(-50%, -50%)`;
-    this.track.style.transform =
-      `translateX(${min * width}px) scaleX(${max - min})`;
+  disconnectedCallback() {
+    // cleanup
+    this.unsubscribe();
+    this.unbindMin();
+    this.unbindMax();
   }
 
-  /**
-   * Convinience method for setting the aria attributes.
-   * https://www.w3.org/TR/wai-aria-practices-1.1/#slidertwothumb
-   */
-  _setAriaAttributes() {
-    const {min, max} = this.value;
-    const range = this.range;
+  render(state) {
+    const { width } = this.gBCR;
+    const { max, min, valuemax, valuemin } = state;
 
-    this.knob.max.setAttribute('aria-valuemin', min);
-    this.knob.max.setAttribute('aria-valuenow', max);
-    this.knob.max.setAttribute('aria-valuemax', range);
-    this.knob.min.setAttribute('aria-valuemin', 0);
-    this.knob.min.setAttribute('aria-valuenow', min);
-    this.knob.min.setAttribute('aria-valuemax', max);
+    const inputRange = [min, max];
+    const outputRange = [0, width]; // in px
+
+    // ...quantize(valuemax, step) here?
+    const maxX = interpolate(valuemax, inputRange, outputRange);
+    this.$max.style.transform = `translateX(${maxX}px) translate(-50%, -50%)`;
+
+    const minX = interpolate(valuemin, inputRange, outputRange);
+    this.$min.style.transform = `translateX(${minX}px) translate(-50%, -50%)`;
+
+    const sX = interpolate(maxX - minX, [0, width], [0, 1]);
+    this.$track.style.transform = `translateX(${minX}px) scaleX(${sX})`;
+
+    // TODO update aria attributes
   }
 
-  /**
-   * Updates the current state of the component.
-   * partialState is normalized.
-   *
-   * @private
-   * @param {State} partialState
-   */
-  _setState(partialState) {
-    const validState = this._validateState(partialState);
-    this._state = Object.assign({}, this._state, validState);
-    this._render();
-  }
-
-  /**
-   * Clamps the values to fit the range.
-   *
-   * @param {State} partialState - State to check.
-   * @return {State} - valid state.
-   */
-  _validateState(partialState) {
-    let validState = {};
-    Object.keys(partialState)
-      .forEach((key) => {
-        const value = partialState[key];
-        validState[key] = this._checkRange(value, key);
-      });
-    return validState;
-  }
-
-  /**
-   * Checks if value is in range.
-   *
-   * @param {number} value Property value
-   * @param {string} key Property name
-   * @return {number}
-   */
-  _checkRange(value, key) {
-    const {min, max} = this._state;
-    const range = {
-      min: {
-        MINIMUM: 0,
-        MAXIMUM: max || 1,
-      },
-      max: {
-        MINIMUM: min || 0,
-        MAXIMUM: 1,
-      },
-    };
-
-    return Math.max(range[key].MINIMUM,
-      Math.min(value, range[key].MAXIMUM));
-  }
-
-  /**
-   * Convinience method for dispatching event.
-   *
-   * @param {String} typeArg - A DOMString representing the name of the event.
-   */
-  _dispatch(typeArg) {
-    const evt = new CustomEvent(typeArg, {bubbles: true, detail: this});
-    this.root.dispatchEvent(evt);
-  }
-
-  /**
-   * Convinience method for attaching event handlers to the document object.
-   */
-  _addEventListeners() {
-    document.addEventListener('mousemove', this._onMove);
-    document.addEventListener('mouseup', this._onEnd);
-    // touch event handlers
-    document.addEventListener('touchmove', this._onMove);
-    document.addEventListener('touchend', this._onEnd);
-    document.addEventListener('touchcancel', this._onEnd);
-  }
-
-  /**
-   * Convinience method for removing event handlers from the document.
-   */
-  _removeEventListeners() {
-    document.removeEventListener('mousemove', this._onMove);
-    document.removeEventListener('mouseup', this._onEnd);
-    // touch event handlers
-    document.removeEventListener('touchmove', this._onMove);
-    document.removeEventListener('touchend', this._onEnd);
-    document.removeEventListener('touchcancel', this._onEnd);
-  }
-
-  /**
-   * Convinience methdo for attaching the event handler to the root element.
-   */
-  addEventListener(...args) {
-    this.root.addEventListener(...args);
-  }
-
-  /**
-   * Convinience methdo for removing the event handler from the root element.
-   */
-  removeEventListener(...args) {
-    this.root.removeEventListener(...args);
+  upgradeProperty(prop) {
+    if (this.hasOwnProperty(prop)) {
+      const value = this[prop];
+      delete this[prop];
+      this[prop] = value;
+    }
   }
 }
 
-export default DoubleSlider;
+const LMB = 0;
+// TODO give better name...
+function bindDragHandler(el, handler) {
+  let rAF = -1;
+  // state
+  let active = false;
+  let x = 0;
+  let initial = 0;
+  // maybe we'll need delta, or event?
+  // delta = movement - prevMovement
+  // event = initial event?
+
+  // TODO add touch support
+  el.addEventListener("mousedown", onDragStart);
+
+  function update() {
+    handler &&
+      handler({
+        x,
+        movement: x - initial,
+        initial,
+        active,
+      });
+
+    if (!active) return;
+
+    rAF = window.requestAnimationFrame(update);
+  }
+
+  function onDragStart(evt) {
+    if (evt.button !== LMB) return;
+
+    initial = evt.pageX || evt.touches[0].pageX;
+    active = true;
+    x = initial;
+
+    document.addEventListener("mousemove", onDragMove);
+    document.addEventListener("mouseup", onDragEnd);
+
+    rAF = window.requestAnimationFrame(update);
+    evt.preventDefault();
+  }
+
+  function onDragMove(evt) {
+    try {
+      x = evt.pageX || evt.touches[0].pageX;
+    } catch (err) {
+      // if anything bad happens, release the handle
+      active = false;
+      // *NOTE* I don't think we need to clear event handlers at this point,
+      // since "mouseup" will fire as soon as the user releases the LMB
+    }
+    evt.preventDefault();
+  }
+
+  function onDragEnd(evt) {
+    active = false;
+
+    document.removeEventListener("mousemove", onDragMove);
+    document.removeEventListener("mouseup", onDragEnd);
+
+    evt.preventDefault();
+  }
+
+  return () => {
+    el.removeEventListener("mousedown", onDragStart);
+    window.requestAnimationFrame(rAF);
+  };
+}
+
+window.customElements.define("double-slider", DoubleSlider);

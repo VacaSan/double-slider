@@ -2,11 +2,11 @@
   "name": "double-slider",
   "version": "2.0.0",
   "description": "A simple two-thumb slider component",
-  "main": "lib/double-slider.js",
+  "main": "dist/double-slider.js",
   "scripts": {
-    "start": "webpack --watch",
-    "build": "webpack",
-    "lint:js": "./node_modules/.bin/eslint --fix src --ext js"
+    "start": "parcel ./docs/index.html",
+    "clean": "rm -rf ./dist",
+    "build": "npm run clean && parcel build ./src/double-slider.js"
   },
   "repository": {
     "type": "git",
@@ -15,19 +15,7 @@
   "author": "Vladan Kotarac",
   "license": "MIT",
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-eslint": "^8.2.3",
-    "babel-loader": "^7.1.2",
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-preset-env": "^1.7.0",
-    "cssnano": "^3.10.0",
-    "eslint": "^4.19.1",
-    "eslint-config-google": "^0.9.1",
-    "postcss-cssnext": "^3.1.0",
-    "webpack": "^3.8.1",
-    "webpack-dev-server": "^2.9.3"
-  },
-  "dependencies": {
-    "injected-css": "^0.4.1"
+    "cssnano": "^4.1.10",
+    "parcel-bundler": "^1.12.4"
   }
 }
