@@ -10,6 +10,8 @@ const VALUE_MIN = "valuemin";
 const DEFAULT_MAX = 100;
 const DEFAULT_MIN = 0;
 const DEFAULT_STEP = 0; // continuous
+const EVT_CHANGE = "slider:change";
+const EVT_INPUT = "slider:input";
 
 const template = doc.createElement("template");
 
@@ -20,19 +22,21 @@ function createStore(initialState = {}) {
   let state = initialState;
   let listeners = [];
 
-  function setState(partial, forceUpdate = false) {
+  function setState(partial, callback) {
     const update = typeof partial === "function" ? partial(state) : partial;
 
     const shouldUpdate = Object.keys(update).reduce((acc, key) => {
       return acc || update[key] !== state[key];
-    }, forceUpdate);
+    }, false);
 
     if (!shouldUpdate) return;
 
-    const nextState = Object.assign({}, state, update);
+    const prevState = Object.assign({}, state);
+    state = Object.assign({}, state, update);
 
-    listeners.forEach(fn => fn && fn(nextState, state));
-    state = nextState;
+    listeners.forEach(fn => fn && fn(state, prevState));
+
+    callback && callback(state, prevState);
   }
 
   function getState() {
@@ -167,41 +171,54 @@ class DoubleSlider extends HTMLElement {
     // subscribe to state changes
     this.unsubscribe = this.store.connect(this.render);
 
-    // can we re-use handler logic? and should we do this in connectedCallback?
-    this.unbindMax = bindDragHandler(this.$max, ({ initial, movement }) => {
-      const { max, min, step, valuemin } = this.store.getState();
+    // can we re-use handler logic?
+    this.unbindMax = bindDragHandler(
+      this.$max,
+      ({ last, initial, movement }) => {
+        this.store.setState(
+          ({ max, min, step, valuemin }) => {
+            const { width, left } = this.gBCR;
 
-      const { width, left } = this.gBCR;
+            const inputRange = [left, left + width];
+            const outputRange = [min, max];
+            const current = initial + movement;
 
-      const inputRange = [left, left + width];
-      const outputRange = [min, max];
+            // some pipe style refactor?
+            let valuemax = interpolate(current, inputRange, outputRange);
+            valuemax = quantize(valuemax, step);
+            valuemax = clamp(valuemax, valuemin, max);
 
-      let valuemax = interpolate(initial + movement, inputRange, outputRange);
+            return { valuemax };
+          },
+          () => this.dispatch(EVT_INPUT)
+        );
+        // *NOTE* change event fires even if prevState === nextState
+        if (last) this.dispatch(EVT_CHANGE);
+      }
+    );
 
-      if (step && step > 0) valuemax = quantize(valuemax, step);
+    this.unbindMin = bindDragHandler(
+      this.$min,
+      ({ last, initial, movement }) => {
+        this.store.setState(
+          ({ max, min, step, valuemax }) => {
+            const { width, left } = this.gBCR;
 
-      this.store.setState({
-        valuemax: clamp(valuemax, valuemin, max),
-      });
-      // TODO dispatch events
-    });
+            const inputRange = [left, left + width];
+            const outputRange = [min, max];
+            const current = initial + movement;
 
-    this.unbindMin = bindDragHandler(this.$min, ({ initial, movement }) => {
-      const { max, min, step, valuemax } = this.store.getState();
+            let valuemin = interpolate(current, inputRange, outputRange);
+            valuemin = quantize(valuemin, step);
+            valuemin = clamp(valuemin, min, valuemax);
 
-      const { width, left } = this.gBCR;
-
-      const inputRange = [left, left + width];
-      const outputRange = [min, max];
-
-      let valuemin = interpolate(initial + movement, inputRange, outputRange);
-
-      if (step && step > 0) valuemin = quantize(valuemin, step);
-
-      this.store.setState({
-        valuemin: clamp(valuemin, min, valuemax),
-      });
-    });
+            return { valuemin };
+          },
+          () => this.dispatch(EVT_INPUT)
+        );
+        if (last) this.dispatch(EVT_CHANGE);
+      }
+    );
   }
 
   disconnectedCallback() {
@@ -218,7 +235,6 @@ class DoubleSlider extends HTMLElement {
     const inputRange = [min, max];
     const outputRange = [0, width]; // in px
 
-    // ...quantize(valuemax, step) here?
     const maxX = interpolate(valuemax, inputRange, outputRange);
     this.$max.style.transform = `translateX(${maxX}px) translate(-50%, -50%)`;
 
@@ -238,6 +254,10 @@ class DoubleSlider extends HTMLElement {
       this[prop] = value;
     }
   }
+
+  dispatch(type) {
+    this.dispatchEvent(new CustomEvent(type, { bubbles: true, detail: this }));
+  }
 }
 
 const LMB = 0;
@@ -246,6 +266,7 @@ function bindDragHandler(el, handler) {
   let rAF = -1;
   // state
   let active = false;
+  let last = false;
   let x = 0;
   let initial = 0;
   // maybe we'll need delta, or event?
@@ -262,6 +283,7 @@ function bindDragHandler(el, handler) {
         movement: x - initial,
         initial,
         active,
+        last,
       });
 
     if (!active) return;
@@ -274,6 +296,7 @@ function bindDragHandler(el, handler) {
 
     initial = evt.pageX || evt.touches[0].pageX;
     active = true;
+    last = false;
     x = initial;
 
     document.addEventListener("mousemove", onDragMove);
@@ -289,6 +312,7 @@ function bindDragHandler(el, handler) {
     } catch (err) {
       // if anything bad happens, release the handle
       active = false;
+      last = true;
       // *NOTE* I don't think we need to clear event handlers at this point,
       // since "mouseup" will fire as soon as the user releases the LMB
     }
@@ -297,6 +321,7 @@ function bindDragHandler(el, handler) {
 
   function onDragEnd(evt) {
     active = false;
+    last = true;
 
     document.removeEventListener("mousemove", onDragMove);
     document.removeEventListener("mouseup", onDragEnd);

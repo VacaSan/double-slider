@@ -7,8 +7,12 @@ function interpolate(x, [x0, x1], [y0, y1]) {
 }
 
 function quantize(value, step) {
-  const numSteps = Math.round(value / step);
-  return numSteps * step;
+  if (step) {
+    const numSteps = Math.round(value / step);
+    return numSteps * step;
+  } else {
+    return value;
+  }
 }
 
 export { clamp, interpolate, quantize };
