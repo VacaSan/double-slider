@@ -1,0 +1,21 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ../node_modules/.bin/parcel index.html",
+    "clean": "rm -rf ./dist",
+    "build": "npm run clean && node ../node_modules/.bin/parcel build index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "double-slider": "file:.."
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "parcel-bundler": "file:../node_modules/parcel-bundler"
+  }
+}

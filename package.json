@@ -2,20 +2,29 @@
   "name": "double-slider",
   "version": "2.0.0",
   "description": "A simple two-thumb slider component",
+  "author": "Vladan Kotarac",
+  "license": "MIT",
+  "source": "src/double-slider.js",
   "main": "dist/double-slider.js",
+  "module": "dist/double-slider.module.js",
+  "unpkg": "dist/double-slider.umd.js",
   "scripts": {
-    "start": "parcel ./docs/index.html",
-    "clean": "rm -rf ./dist",
-    "build": "npm run clean && parcel build ./src/double-slider.js"
+    "build": "microbundle",
+    "start": "microbundle watch",
+    "prepublish": "npm run build",
+    "predeploy": "cd example && npm install && npm run build",
+    "deploy": "gh-pages -d example/dist"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/VacaSan/double-slider.git"
   },
-  "author": "Vladan Kotarac",
-  "license": "MIT",
   "devDependencies": {
-    "cssnano": "^4.1.10",
-    "parcel-bundler": "^1.12.4"
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-html-import-to-string": "0.0.1",
+    "gh-pages": "^3.1.0",
+    "microbundle": "^0.12.2",
+    "parcel-bundler": "^1.12.4",
+    "prettier": "^2.0.5"
   }
 }
