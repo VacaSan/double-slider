@@ -1,4 +1,4 @@
-import { interpolate, clamp, quantize } from "./utils";
+import { interpolate, clamp, quantize, getValueForKeyId } from "./utils";
 import contents from "./template-contents.html";
 
 const doc = document;
@@ -148,10 +148,9 @@ class DoubleSlider extends HTMLElement {
     this.$max = shadowRoot.querySelector("#thumb-max");
     this.$track = shadowRoot.querySelector("#track");
 
-    // TODO attach event handlers (keydown...)
-
     // bind methods
     this.render = this.render.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -171,7 +170,11 @@ class DoubleSlider extends HTMLElement {
     // subscribe to state changes
     this.unsubscribe = this.store.connect(this.render);
 
-    // can we re-use handler logic?
+    this.$max.addEventListener("keydown", this.onKeyDown);
+    this.$min.addEventListener("keydown", this.onKeyDown);
+
+    // can we re-use handler logic? Sure we can, do something like in the
+    // onKeyDown handler
     this.unbindMax = bindDragHandler(
       this.$max,
       ({ last, initial, movement }) => {
@@ -226,6 +229,36 @@ class DoubleSlider extends HTMLElement {
     this.unsubscribe();
     this.unbindMin();
     this.unbindMax();
+    this.$max.removeEventListener("keydown", this.onKeyDown);
+    this.$min.removeEventListener("keydown", this.onKeyDown);
+  }
+
+  onKeyDown(evt) {
+    const name = evt.target.dataset.name;
+    const keyId = evt.key;
+
+    const state = this.store.getState();
+
+    const nextValue = getValueForKeyId({
+      keyId,
+      value: state[name],
+      step: state[STEP],
+      max: state[MAX],
+      min: state[MIN],
+    });
+
+    if (Number.isNaN(nextValue)) return;
+
+    const upperBound = state[name === VALUE_MAX ? MAX : VALUE_MAX];
+    const lowerBound = state[name === VALUE_MAX ? VALUE_MIN : MIN];
+
+    this.store.setState(
+      { [name]: clamp(nextValue, lowerBound, upperBound) },
+      () => {
+        this.dispatch(EVT_INPUT);
+        this.dispatch(EVT_CHANGE);
+      }
+    );
   }
 
   render(state) {
@@ -256,6 +289,8 @@ class DoubleSlider extends HTMLElement {
   }
 
   dispatch(type) {
+    // TODO track last emitted value for each event? And if that changed
+    // fire event?
     this.dispatchEvent(new CustomEvent(type, { bubbles: true, detail: this }));
   }
 }
