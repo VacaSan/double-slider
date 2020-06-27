@@ -150,6 +150,7 @@ class DoubleSlider extends HTMLElement {
 
     // bind methods
     this.render = this.render.bind(this);
+    this.onDrag = this.onDrag.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
   }
 
@@ -173,55 +174,8 @@ class DoubleSlider extends HTMLElement {
     this.$max.addEventListener("keydown", this.onKeyDown);
     this.$min.addEventListener("keydown", this.onKeyDown);
 
-    // can we re-use handler logic? Sure we can, do something like in the
-    // onKeyDown handler
-    this.unbindMax = bindDragHandler(
-      this.$max,
-      ({ last, initial, movement }) => {
-        this.store.setState(
-          ({ max, min, step, valuemin }) => {
-            const { width, left } = this.gBCR;
-
-            const inputRange = [left, left + width];
-            const outputRange = [min, max];
-            const current = initial + movement;
-
-            // some pipe style refactor?
-            let valuemax = interpolate(current, inputRange, outputRange);
-            valuemax = quantize(valuemax, step);
-            valuemax = clamp(valuemax, valuemin, max);
-
-            return { valuemax };
-          },
-          () => this.dispatch(EVT_INPUT)
-        );
-        // *NOTE* change event fires even if prevState === nextState
-        if (last) this.dispatch(EVT_CHANGE);
-      }
-    );
-
-    this.unbindMin = bindDragHandler(
-      this.$min,
-      ({ last, initial, movement }) => {
-        this.store.setState(
-          ({ max, min, step, valuemax }) => {
-            const { width, left } = this.gBCR;
-
-            const inputRange = [left, left + width];
-            const outputRange = [min, max];
-            const current = initial + movement;
-
-            let valuemin = interpolate(current, inputRange, outputRange);
-            valuemin = quantize(valuemin, step);
-            valuemin = clamp(valuemin, min, valuemax);
-
-            return { valuemin };
-          },
-          () => this.dispatch(EVT_INPUT)
-        );
-        if (last) this.dispatch(EVT_CHANGE);
-      }
-    );
+    this.unbindMax = bindDragHandler(this.$max, this.onDrag);
+    this.unbindMin = bindDragHandler(this.$min, this.onDrag);
   }
 
   disconnectedCallback() {
@@ -231,6 +185,32 @@ class DoubleSlider extends HTMLElement {
     this.unbindMax();
     this.$max.removeEventListener("keydown", this.onKeyDown);
     this.$min.removeEventListener("keydown", this.onKeyDown);
+  }
+
+  // event handlers
+  onDrag({ target, last, initial, movement }) {
+    const name = target.dataset.name;
+
+    const state = this.store.getState();
+    const { max, min, step } = state;
+    const { width, left } = this.gBCR;
+
+    const inputRange = [left, left + width];
+    const outputRange = [min, max];
+    const current = initial + movement;
+
+    const upperBound = state[name === VALUE_MAX ? MAX : VALUE_MAX];
+    const lowerBound = state[name === VALUE_MAX ? VALUE_MIN : MIN];
+
+    let value = interpolate(current, inputRange, outputRange);
+    value = quantize(value, step);
+    value = clamp(value, lowerBound, upperBound);
+
+    this.store.setState({ [name]: value }, () => {
+      this.dispatch(EVT_INPUT);
+    });
+
+    if (last) this.dispatch(EVT_CHANGE);
   }
 
   onKeyDown(evt) {
@@ -304,9 +284,7 @@ function bindDragHandler(el, handler) {
   let last = false;
   let x = 0;
   let initial = 0;
-  // maybe we'll need delta, or event?
-  // delta = movement - prevMovement
-  // event = initial event?
+  let target = null;
 
   // TODO add touch support
   el.addEventListener("mousedown", onDragStart);
@@ -319,6 +297,7 @@ function bindDragHandler(el, handler) {
         initial,
         active,
         last,
+        target,
       });
 
     if (!active) return;
@@ -329,6 +308,7 @@ function bindDragHandler(el, handler) {
   function onDragStart(evt) {
     if (evt.button !== LMB) return;
 
+    target = evt.target;
     initial = evt.pageX || evt.touches[0].pageX;
     active = true;
     last = false;
