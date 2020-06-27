@@ -34,13 +34,17 @@ function createStore(initialState = {}) {
     const prevState = Object.assign({}, state);
     state = Object.assign({}, state, update);
 
-    listeners.forEach(fn => fn && fn(state, prevState));
+    listeners.forEach(fn => fn && fn(state));
 
     callback && callback(state, prevState);
   }
 
   function getState() {
     return state;
+  }
+
+  function forceUpdate() {
+    listeners.forEach(fn => fn && fn(state));
   }
 
   function connect(fn) {
@@ -57,6 +61,7 @@ function createStore(initialState = {}) {
   return Object.freeze({
     setState,
     getState,
+    forceUpdate,
     connect,
   });
 }
@@ -152,6 +157,7 @@ class DoubleSlider extends HTMLElement {
     this.render = this.render.bind(this);
     this.onDrag = this.onDrag.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
+    this.onResize = this.onResize.bind(this);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -171,11 +177,14 @@ class DoubleSlider extends HTMLElement {
     // subscribe to state changes
     this.unsubscribe = this.store.connect(this.render);
 
+    // add event handlers
     this.$max.addEventListener("keydown", this.onKeyDown);
     this.$min.addEventListener("keydown", this.onKeyDown);
 
     this.unbindMax = bindDragHandler(this.$max, this.onDrag);
     this.unbindMin = bindDragHandler(this.$min, this.onDrag);
+
+    window.addEventListener("resize", this.onResize);
   }
 
   disconnectedCallback() {
@@ -185,6 +194,7 @@ class DoubleSlider extends HTMLElement {
     this.unbindMax();
     this.$max.removeEventListener("keydown", this.onKeyDown);
     this.$min.removeEventListener("keydown", this.onKeyDown);
+    window.removeEventListener("resize", this.onResize);
   }
 
   // event handlers
@@ -239,6 +249,12 @@ class DoubleSlider extends HTMLElement {
         this.dispatch(EVT_CHANGE);
       }
     );
+  }
+
+  // TODO expose layout as public API
+  onResize() {
+    this.gBCR = this.getBoundingClientRect();
+    this.store.forceUpdate();
   }
 
   render(state) {
