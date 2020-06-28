@@ -305,8 +305,8 @@ function bindDragHandler(el, handler) {
   let initial = 0;
   let target = null;
 
-  // TODO add touch support
   el.addEventListener("mousedown", onDragStart);
+  el.addEventListener("touchstart", onDragStart, { passive: false });
 
   function update() {
     handler &&
@@ -325,7 +325,7 @@ function bindDragHandler(el, handler) {
   }
 
   function onDragStart(evt) {
-    if (evt.button !== LMB) return;
+    if (evt.type === "mousedown" && evt.button !== LMB) return;
 
     target = evt.target;
     initial = evt.pageX || evt.touches[0].pageX;
@@ -333,8 +333,12 @@ function bindDragHandler(el, handler) {
     last = false;
     x = initial;
 
+    // could be moved to its own function
     document.addEventListener("mousemove", onDragMove);
     document.addEventListener("mouseup", onDragEnd);
+    document.addEventListener("touchmove", onDragMove, { passive: false });
+    document.addEventListener("touchend", onDragMove, { passive: false });
+    document.addEventListener("touchcancel", onDragMove, { passive: false });
 
     rAF = window.requestAnimationFrame(update);
     evt.preventDefault();
@@ -359,12 +363,16 @@ function bindDragHandler(el, handler) {
 
     document.removeEventListener("mousemove", onDragMove);
     document.removeEventListener("mouseup", onDragEnd);
+    document.removeEventListener("touchmove", onDragMove, { passive: false });
+    document.removeEventListener("touchend", onDragMove, { passive: false });
+    document.removeEventListener("touchcancel", onDragMove, { passive: false });
 
     evt.preventDefault();
   }
 
   return () => {
     el.removeEventListener("mousedown", onDragStart);
+    el.removeEventListener("touchstart", onDragStart, { passive: false });
     window.requestAnimationFrame(rAF);
   };
 }
