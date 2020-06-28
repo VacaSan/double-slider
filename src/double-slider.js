@@ -161,8 +161,6 @@ class DoubleSlider extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (newValue === oldValue) return;
-
     // kebab to camel case?
     this.store.setState({ [name]: Number(newValue) });
   }
