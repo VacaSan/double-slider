@@ -197,7 +197,17 @@ class DoubleSlider extends HTMLElement {
     window.removeEventListener("resize", this.onResize);
   }
 
+  // public methods
+  layout() {
+    this.gBCR = this.getBoundingClientRect();
+    this.store.forceUpdate();
+  }
+
   // event handlers
+  onResize() {
+    this.layout();
+  }
+
   onDrag({ target, last, initial, movement }) {
     const name = target.dataset.name;
 
@@ -251,12 +261,6 @@ class DoubleSlider extends HTMLElement {
     );
   }
 
-  // TODO expose layout as public API
-  onResize() {
-    this.gBCR = this.getBoundingClientRect();
-    this.store.forceUpdate();
-  }
-
   render(state) {
     const { width } = this.gBCR;
     const { max, min, valuemax, valuemin } = state;
@@ -276,6 +280,7 @@ class DoubleSlider extends HTMLElement {
     // TODO update aria attributes
   }
 
+  // utils
   upgradeProperty(prop) {
     if (this.hasOwnProperty(prop)) {
       const value = this[prop];
