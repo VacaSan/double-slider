@@ -71,7 +71,7 @@ function validate({ max, min, step }) {
   if (step < 0) throw new RangeError("step must be greater than zero");
 }
 
-class DoubleSlider extends HTMLElement {
+export class DoubleSlider extends HTMLElement {
   get min() {
     return this.store.getState().min;
   }
