@@ -118,6 +118,7 @@ export class DoubleSlider extends HTMLElement {
   }
 
   static get observedAttributes() {
+    // TODO do we need to track "disabled" attribute? I think we should...
     return [MIN, MAX, STEP, VALUE_MAX, VALUE_MIN];
   }
 
@@ -275,7 +276,17 @@ export class DoubleSlider extends HTMLElement {
     const sX = interpolate(maxX - minX, [0, width], [0, 1]);
     this.$track.style.transform = `translateX(${minX}px) scaleX(${sX})`;
 
-    // TODO update aria attributes
+    // TODO update aria-valuetext and aria-labeledby
+    // see https://www.w3.org/TR/wai-aria-practices/#slidertwothumb
+    this.$max.setAttribute("aria-valuemin", valuemin);
+    this.$max.setAttribute("aria-valuenow", valuemax);
+    this.$max.setAttribute("aria-valuemax", max);
+
+    this.$min.setAttribute("aria-valuemin", min);
+    this.$min.setAttribute("aria-valuenow", valuemin);
+    this.$min.setAttribute("aria-valuemax", valuemax);
+
+    // TODO if is disabled, apply disabled attribute to buttons
   }
 
   // utils
