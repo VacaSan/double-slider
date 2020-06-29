@@ -1,4 +1,5 @@
 import { interpolate, clamp, quantize, getValueForKeyId } from "./utils";
+import { addDragHandler } from "./gesture";
 import contents from "./template-contents.html";
 
 const doc = document;
@@ -167,6 +168,7 @@ export class DoubleSlider extends HTMLElement {
   }
 
   connectedCallback() {
+    // TODO check if this.isConnected
     [MAX, MIN, STEP, VALUE_MAX, VALUE_MIN].forEach(prop =>
       this.upgradeProperty(prop)
     );
@@ -180,8 +182,8 @@ export class DoubleSlider extends HTMLElement {
     this.$max.addEventListener("keydown", this.onKeyDown);
     this.$min.addEventListener("keydown", this.onKeyDown);
 
-    this.unbindMax = bindDragHandler(this.$max, this.onDrag);
-    this.unbindMin = bindDragHandler(this.$min, this.onDrag);
+    addDragHandler(this.$max, this.onDrag);
+    addDragHandler(this.$min, this.onDrag);
 
     window.addEventListener("resize", this.onResize);
   }
@@ -189,10 +191,10 @@ export class DoubleSlider extends HTMLElement {
   disconnectedCallback() {
     // cleanup
     this.unsubscribe();
-    this.unbindMin();
-    this.unbindMax();
-    this.$max.removeEventListener("keydown", this.onKeyDown);
-    this.$min.removeEventListener("keydown", this.onKeyDown);
+    // As part of the component lifecycle, the browser manages and
+    // cleans up listeners, so you don’t have to worry about it.
+    // However, if you add a listener to the global window object,
+    // you’re responsible for removing the listener
     window.removeEventListener("resize", this.onResize);
   }
 
@@ -303,89 +305,6 @@ export class DoubleSlider extends HTMLElement {
     // fire event?
     this.dispatchEvent(new CustomEvent(type, { bubbles: true, detail: this }));
   }
-}
-
-const LMB = 0;
-// TODO give better name...
-function bindDragHandler(el, handler) {
-  let rAF = -1;
-  // state
-  let active = false;
-  let last = false;
-  let x = 0;
-  let initial = 0;
-  let target = null;
-
-  el.addEventListener("mousedown", onDragStart);
-  el.addEventListener("touchstart", onDragStart, { passive: false });
-
-  function update() {
-    handler &&
-      handler({
-        x,
-        movement: x - initial,
-        initial,
-        active,
-        last,
-        target,
-      });
-
-    if (!active) return;
-
-    rAF = window.requestAnimationFrame(update);
-  }
-
-  function onDragStart(evt) {
-    if (evt.type === "mousedown" && evt.button !== LMB) return;
-
-    target = evt.target;
-    initial = evt.pageX || evt.touches[0].pageX;
-    active = true;
-    last = false;
-    x = initial;
-
-    // could be moved to its own function
-    document.addEventListener("mousemove", onDragMove);
-    document.addEventListener("mouseup", onDragEnd);
-    document.addEventListener("touchmove", onDragMove, { passive: false });
-    document.addEventListener("touchend", onDragMove, { passive: false });
-    document.addEventListener("touchcancel", onDragMove, { passive: false });
-
-    rAF = window.requestAnimationFrame(update);
-    evt.preventDefault();
-  }
-
-  function onDragMove(evt) {
-    try {
-      x = evt.pageX || evt.touches[0].pageX;
-    } catch (err) {
-      // if anything bad happens, release the handle
-      active = false;
-      last = true;
-      // *NOTE* I don't think we need to clear event handlers at this point,
-      // since "mouseup" will fire as soon as the user releases the LMB
-    }
-    evt.preventDefault();
-  }
-
-  function onDragEnd(evt) {
-    active = false;
-    last = true;
-
-    document.removeEventListener("mousemove", onDragMove);
-    document.removeEventListener("mouseup", onDragEnd);
-    document.removeEventListener("touchmove", onDragMove, { passive: false });
-    document.removeEventListener("touchend", onDragMove, { passive: false });
-    document.removeEventListener("touchcancel", onDragMove, { passive: false });
-
-    evt.preventDefault();
-  }
-
-  return () => {
-    el.removeEventListener("mousedown", onDragStart);
-    el.removeEventListener("touchstart", onDragStart, { passive: false });
-    window.requestAnimationFrame(rAF);
-  };
 }
 
 window.customElements.define("double-slider", DoubleSlider);
