@@ -1,4 +1,5 @@
 import { interpolate, clamp, quantize, getValueForKeyId } from "./utils";
+import { createStore } from "./store";
 import { addDragHandler } from "./gesture";
 import contents from "./template-contents.html";
 
@@ -19,57 +20,9 @@ const template = doc.createElement("template");
 // TODO inline contents
 template.innerHTML = contents;
 
-function createStore(initialState = {}) {
-  let state = initialState;
-  let listeners = [];
-
-  function setState(partial, callback) {
-    const update = typeof partial === "function" ? partial(state) : partial;
-
-    const shouldUpdate = Object.keys(update).reduce((acc, key) => {
-      return acc || update[key] !== state[key];
-    }, false);
-
-    if (!shouldUpdate) return;
-
-    const prevState = Object.assign({}, state);
-    state = Object.assign({}, state, update);
-
-    listeners.forEach(fn => fn && fn(state));
-
-    callback && callback(state, prevState);
-  }
-
-  function getState() {
-    return state;
-  }
-
-  function forceUpdate() {
-    listeners.forEach(fn => fn && fn(state));
-  }
-
-  function connect(fn) {
-    listeners.push(fn);
-
-    fn(state);
-
-    return () => {
-      const index = listeners.indexOf(fn);
-      listeners.splice(index, 1);
-    };
-  }
-
-  return Object.freeze({
-    setState,
-    getState,
-    forceUpdate,
-    connect,
-  });
-}
-
 function validate({ max, min, step }) {
   if (max <= min) throw new RangeError("min must be lower than max");
-  if (step < 0) throw new RangeError("step must be greater than zero");
+  if (step < 0) throw new RangeError("step must be greater than or equal zero");
 }
 
 export class DoubleSlider extends HTMLElement {
