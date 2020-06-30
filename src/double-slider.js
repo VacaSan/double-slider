@@ -9,6 +9,7 @@ const MIN = "min";
 const STEP = "step";
 const VALUE_MAX = "valuemax";
 const VALUE_MIN = "valuemin";
+const DISABLED = "disabled";
 const DEFAULT_MAX = 100;
 const DEFAULT_MIN = 0;
 const DEFAULT_STEP = 0; // continuous
@@ -71,9 +72,19 @@ export class DoubleSlider extends HTMLElement {
     }));
   }
 
+  get disabled() {
+    return this.hasAttribute(DISABLED);
+  }
+  set disabled(value) {
+    if (value) {
+      this.setAttribute(DISABLED, "");
+    } else {
+      this.removeAttribute(DISABLED);
+    }
+  }
+
   static get observedAttributes() {
-    // TODO do we need to track "disabled" attribute? I think we should...
-    return [MIN, MAX, STEP, VALUE_MAX, VALUE_MIN];
+    return [MIN, MAX, STEP, VALUE_MAX, VALUE_MIN, DISABLED];
   }
 
   constructor() {
@@ -116,13 +127,18 @@ export class DoubleSlider extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    // kebab to camel case?
-    this.store.setState({ [name]: Number(newValue) });
+    if (name === DISABLED) {
+      this.$max.disabled = this.disabled;
+      this.$min.disabled = this.disabled;
+    } else {
+      // kebab to camel case?
+      this.store.setState({ [name]: Number(newValue) });
+    }
   }
 
   connectedCallback() {
     // TODO check if this.isConnected
-    [MAX, MIN, STEP, VALUE_MAX, VALUE_MIN].forEach(prop =>
+    [MAX, MIN, STEP, VALUE_MAX, VALUE_MIN, DISABLED].forEach(prop =>
       this.upgradeProperty(prop)
     );
 
@@ -240,8 +256,6 @@ export class DoubleSlider extends HTMLElement {
     this.$min.setAttribute("aria-valuemin", min);
     this.$min.setAttribute("aria-valuenow", valuemin);
     this.$min.setAttribute("aria-valuemax", valuemax);
-
-    // TODO if is disabled, apply disabled attribute to buttons
   }
 
   // utils
