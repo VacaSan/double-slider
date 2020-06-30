@@ -8,31 +8,153 @@
       *,
       *::before,
       *::after {
-        box-sizing: content-box;
+        box-sizing: border-box;
       }
       html,
       body {
-        height: 100%;
+        width: 100%;
       }
       body {
+        overflow-x: hidden;
         margin: 0;
+        background-color: #fff;
+        color: rgba(0, 0, 0, 0.87);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 3rem;
+        padding: 0 1rem;
+        background-color: #fff;
+        box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+          0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+          0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+      }
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 400;
+        line-height: 2;
+        margin-top: 0;
+        margin-bottom: 0.25rem;
+      }
+      input[type="checkbox"] {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        margin: 0;
+        font-size: inherit;
+      }
+      input[type="number"],
+      select {
+        font-size: 1rem;
+        height: 1.75em;
+        padding: 0 0.5rem;
+      }
+      label {
+        display: inline-flex;
+        align-items: center;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+      label input[type="checkbox"] {
+        margin-right: 0.5em;
+      }
+      .logo {
+        display: inline-block;
+        font-size: 2rem;
+        margin-right: 0.5em;
+      }
+      .logotype {
+        font-size: 1.125rem;
+        font-weight: 400;
+        line-height: 2;
       }
       .container {
         max-width: 600px;
+        padding: 1rem;
         margin: 0 auto;
+      }
+      .card {
+        padding: 2rem 1rem;
+        border-radius: 0.25rem;
+        background-color: #eee;
+        margin-bottom: 1rem;
+      }
+      .form {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -0.5rem;
+      }
+      .form-group {
+        flex-grow: 1;
+        flex-basis: calc(50% - 1rem);
+        display: inline-flex;
+        flex-direction: column;
+        padding: 0.5rem;
+      }
+      .form-group label {
+        margin-bottom: 0.25rem;
       }
     </style>
   </head>
   <body>
+    <header>
+      <span class="logo" role="img" aria-label="skateboard">🛹</span>
+      <span class="logotype">Double Slider</span>
+    </header>
     <div class="container">
-      <double-slider
-        id="mySlider"
-        min="0"
-        max="100"
-        step="5"
-        valuemin="25"
-        valuemax="75"
-      ></double-slider>
+      <h1>
+        Double Slider
+      </h1>
+      <div class="card" id="demo">
+        <double-slider
+          id="mySlider"
+          min="0"
+          max="100"
+          step="5"
+          valuemin="25"
+          valuemax="75"
+        ></double-slider>
+      </div>
+      <!-- demo time -->
+      <div>
+        <div class="form">
+          <div class="form-group">
+            <label for="valuemin">valuemin</label>
+            <input id="valuemin" type="number" />
+          </div>
+          <div class="form-group">
+            <label for="valuemax">valuemax</label>
+            <input id="valuemax" type="number" />
+          </div>
+          <div class="form-group">
+            <label for="min">min</label>
+            <input id="min" type="number" />
+          </div>
+          <div class="form-group">
+            <label for="max">max</label>
+            <input id="max" type="number" />
+          </div>
+          <div class="form-group">
+            <label for="step">step</label>
+            <select id="step">
+              <option>0</option>
+              <option>2</option>
+              <option>5</option>
+              <option>10</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>
+            <input id="toggle" type="checkbox" />
+            Disabled
+          </label>
+        </div>
+      </div>
     </div>
 
     <script src="./index.js"></script>

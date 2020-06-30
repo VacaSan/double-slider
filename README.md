@@ -3,7 +3,7 @@
 
   <a href="https://emojipedia.org/apple/ios-13.3/hamburger/">
     <img
-      src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/320/apple/237/hamburger_1f354.png" 
+      src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/320/apple/237/skateboard_1f6f9.png" 
       alt="burger"
       width="80"
       height="80">
