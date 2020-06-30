@@ -32,7 +32,7 @@ export class DoubleSlider extends HTMLElement {
   }
   set min(value) {
     let { max, valuemax, valuemin } = this.store.getState();
-    valuemin = clamp(valuemin, value, valuemax);
+    valuemin = Math.max(valuemin, value);
     valuemax = clamp(valuemax, valuemin, max);
     this.store.setState({ min: value, valuemax, valuemin });
   }
@@ -42,7 +42,7 @@ export class DoubleSlider extends HTMLElement {
   }
   set max(value) {
     let { min, valuemax, valuemin } = this.store.getState();
-    valuemax = clamp(valuemax, valuemin, value);
+    valuemax = Math.min(valuemax, value);
     valuemin = clamp(valuemin, min, valuemax);
     this.store.setState({ max: value, valuemax, valuemin });
   }
