@@ -97,7 +97,7 @@ export class DoubleSlider extends HTMLElement {
 
     let valuemax = Number(this.getAttribute(VALUE_MAX) || max);
     let valuemin = Number(this.getAttribute(VALUE_MIN) || min);
-    valuemax = clamp(valuemax, valuemin, max);
+    valuemax = clamp(valuemax, min, max);
     valuemin = clamp(valuemin, min, valuemax);
 
     validate({ max, min, step });
