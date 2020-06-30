@@ -12,7 +12,7 @@
     display: none;
   }
   :host([disabled]) {
-    color: #9e9e9e;
+    color: #bdbdbd;
     pointer-events: none;
   }
   .double-slider {
@@ -81,6 +81,10 @@
   }
   .thumb:active::after {
     transform: scale(1);
+  }
+  .thumb:disabled::after {
+    transform: scale(0.381);
+    box-shadow: none;
   }
   .thumb::before {
     position: absolute;
