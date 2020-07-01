@@ -51,15 +51,20 @@ export class DoubleSlider extends HTMLElement {
     return this.store.getState().step;
   }
   set step(value) {
-    this.store.setState({ step: value });
+    this.store.setState(({ valuemax, valuemin }) => ({
+      step: value,
+      // do we need to clamp the new values?
+      valuemax: quantize(valuemax, value),
+      valuemin: quantize(valuemin, value),
+    }));
   }
 
   get valuemax() {
     return this.store.getState().valuemax;
   }
   set valuemax(value) {
-    this.store.setState(({ max, valuemin }) => ({
-      valuemax: clamp(value, valuemin, max),
+    this.store.setState(({ max, step, valuemin }) => ({
+      valuemax: clamp(quantize(value, step), valuemin, max),
     }));
   }
 
@@ -67,8 +72,8 @@ export class DoubleSlider extends HTMLElement {
     return this.store.getState().valuemin;
   }
   set valuemin(value) {
-    this.store.setState(({ min, valuemax }) => ({
-      valuemin: clamp(value, min, valuemax),
+    this.store.setState(({ min, step, valuemax }) => ({
+      valuemin: clamp(quantize(value, step), min, valuemax),
     }));
   }
 
