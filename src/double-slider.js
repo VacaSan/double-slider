@@ -137,7 +137,7 @@ export class DoubleSlider extends HTMLElement {
       this.$min.disabled = this.disabled;
     } else {
       // kebab to camel case?
-      this.store.setState({ [name]: Number(newValue) });
+      this[name] = Number(newValue);
     }
   }
 
@@ -237,6 +237,7 @@ export class DoubleSlider extends HTMLElement {
   }
 
   render(state) {
+    console.log("render", state);
     const { width } = this.gBCR;
     const { max, min, valuemax, valuemin } = state;
 
