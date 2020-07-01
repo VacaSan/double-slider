@@ -237,7 +237,6 @@ export class DoubleSlider extends HTMLElement {
   }
 
   render(state) {
-    console.log("render", state);
     const { width } = this.gBCR;
     const { max, min, valuemax, valuemin } = state;
 

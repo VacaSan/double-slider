@@ -70,7 +70,11 @@ The minimum permitted value. The value must be less than `max` attribute. If not
 
 #### `step: number`
 
-The stepping interval. If not specified defaults to 0, meaning no stepping is implied.
+The stepping interval.
+
+When a step value is given, the slider will quantize all values to match that step value, _except_ for the `min` and `max`, which can always be set. This is to ensure consistent behavior.
+
+If not specified defaults to 0, meaning no stepping is implied.
 
 #### `valuemax: number`
 
