@@ -31,20 +31,28 @@ export class DoubleSlider extends HTMLElement {
     return this.store.getState().min;
   }
   set min(value) {
-    let { max, valuemax, valuemin } = this.store.getState();
-    valuemin = Math.max(valuemin, value);
-    valuemax = clamp(valuemax, valuemin, max);
-    this.store.setState({ min: value, valuemax, valuemin });
+    this.store.setState(state => {
+      const valuemin = Math.max(state.valuemin, value);
+
+      let valuemax = quantize(state.valuemax, state.step);
+      valuemax = clamp(valuemax, valuemin, state.max);
+
+      return { min: value, valuemax, valuemin };
+    });
   }
 
   get max() {
     return this.store.getState().max;
   }
   set max(value) {
-    let { min, valuemax, valuemin } = this.store.getState();
-    valuemax = Math.min(valuemax, value);
-    valuemin = clamp(valuemin, min, valuemax);
-    this.store.setState({ max: value, valuemax, valuemin });
+    this.store.setState(state => {
+      const valuemax = Math.min(state.valuemax, value);
+
+      let valuemin = quantize(state.valuemin, state.step);
+      valuemin = clamp(valuemin, state.min, valuemax);
+
+      return { max: value, valuemax, valuemin };
+    });
   }
 
   get step() {
