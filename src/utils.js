@@ -15,29 +15,4 @@ function quantize(value, step) {
   }
 }
 
-const PAGE_FACTOR = 4;
-
-function getValueForKeyId({ keyId, value, min, max, step }) {
-  const delta = step || (max - min) / 100;
-
-  switch (keyId) {
-    case "ArrowLeft":
-    case "ArrowDown":
-      return value - delta;
-    case "ArrowRight":
-    case "ArrowUp":
-      return value + delta;
-    case "PageUp":
-      return value + delta * PAGE_FACTOR;
-    case "PageDown":
-      return value - delta * PAGE_FACTOR;
-    case "Home":
-      return min;
-    case "End":
-      return max;
-    default:
-      return NaN;
-  }
-}
-
-export { clamp, interpolate, quantize, getValueForKeyId };
+export { clamp, interpolate, quantize };

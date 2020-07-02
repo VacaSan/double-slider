@@ -1,4 +1,4 @@
-import { interpolate, clamp, quantize, getValueForKeyId } from "./utils";
+import { interpolate, clamp, quantize } from "./utils";
 import { createStore } from "./store";
 import { addDragHandler } from "./gesture";
 import contents from "./template-contents.html";
@@ -13,6 +13,7 @@ const DISABLED = "disabled";
 const DEFAULT_MAX = 100;
 const DEFAULT_MIN = 0;
 const DEFAULT_STEP = 0; // continuous
+const PAGE_FACTOR = 4;
 const EVT_CHANGE = "slider:change";
 const EVT_INPUT = "slider:input";
 
@@ -206,10 +207,13 @@ export class DoubleSlider extends HTMLElement {
     const lowerBound = state[name === VALUE_MAX ? VALUE_MIN : MIN];
 
     let value = interpolate(current, inputRange, outputRange);
+    // this is the same as this[name] = value;
+    // but how do I dispatch events then 😕
     value = quantize(value, step);
     value = clamp(value, lowerBound, upperBound);
 
     this.store.setState({ [name]: value }, () => {
+      // yeah, I don't really like this implementation...
       this.dispatch(EVT_INPUT);
     });
 
@@ -222,7 +226,7 @@ export class DoubleSlider extends HTMLElement {
 
     const state = this.store.getState();
 
-    const nextValue = getValueForKeyId({
+    const nextValue = this.getValueForKeyId({
       keyId,
       value: state[name],
       step: state[STEP],
@@ -242,6 +246,29 @@ export class DoubleSlider extends HTMLElement {
         this.dispatch(EVT_CHANGE);
       }
     );
+  }
+
+  getValueForKeyId({ keyId, value, min, max, step }) {
+    const delta = step || (max - min) / 100;
+
+    switch (keyId) {
+      case "ArrowLeft":
+      case "ArrowDown":
+        return value - delta;
+      case "ArrowRight":
+      case "ArrowUp":
+        return value + delta;
+      case "PageUp":
+        return value + delta * PAGE_FACTOR;
+      case "PageDown":
+        return value - delta * PAGE_FACTOR;
+      case "Home":
+        return min;
+      case "End":
+        return max;
+      default:
+        return NaN;
+    }
   }
 
   render(state) {
@@ -281,8 +308,6 @@ export class DoubleSlider extends HTMLElement {
   }
 
   dispatch(type) {
-    // TODO track last emitted value for each event? And if that changed
-    // fire event?
     this.dispatchEvent(new CustomEvent(type, { bubbles: true, detail: this }));
   }
 }
