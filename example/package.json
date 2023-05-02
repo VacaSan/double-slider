@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "parcel index.html",
     "start": "parcel index.html",
     "clean": "rm -rf ./dist",
     "build": "npm run clean && parcel build index.html"
@@ -15,7 +16,6 @@
     "double-slider": "file:.."
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "parcel-bundler": "^1.12.4"
+    "parcel": "^2.8.3"
   }
 }

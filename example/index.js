@@ -37,6 +37,14 @@ window.addEventListener(
       valuemax.value = evt.target.valuemax;
       valuemin.value = evt.target.valuemin;
     });
+
+    mySlider.addEventListener("slider:input", () => {
+      console.log("slider:input");
+    });
+
+    mySlider.addEventListener("slider:change", () => {
+      console.log("slider:change");
+    });
   },
   { once: true }
 );
