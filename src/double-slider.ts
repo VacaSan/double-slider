@@ -514,3 +514,9 @@ function getValueForKeyId({
 }
 
 window.customElements.define("double-slider", DoubleSlider);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "double-slider": DoubleSlider;
+  }
+}
