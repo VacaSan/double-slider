@@ -1,7 +1,7 @@
+/* eslint-disable wc/no-constructor-attributes */
 import { interpolate, clamp, quantize } from "./utils.js";
 import { createStore } from "./store.js";
-import { addDragHandler } from "./gesture.js";
-import { DragState } from "./gesture.js";
+import { addDragHandler, DragState } from "./gesture.js";
 
 const doc = document;
 const MAX = "max";
@@ -173,6 +173,7 @@ template.innerHTML = `
 </div>
 `;
 
+// TODO: validate whole state?
 function validate({
   max,
   min,
@@ -196,15 +197,21 @@ type State = {
 
 export class DoubleSlider extends HTMLElement {
   private store: ReturnType<typeof createStore<State>>;
+
   private $min: HTMLButtonElement;
+
   private $max: HTMLButtonElement;
+
   private $track: HTMLDivElement;
+
   private gBCR?: DOMRect;
+
   private unsubscribe?: () => void;
 
   get min() {
     return this.store.getState().min;
   }
+
   set min(value) {
     this.store.setState(state => {
       const valuemin = Math.max(state.valuemin, value);
@@ -219,6 +226,7 @@ export class DoubleSlider extends HTMLElement {
   get max() {
     return this.store.getState().max;
   }
+
   set max(value) {
     this.store.setState(state => {
       const valuemax = Math.min(state.valuemax, value);
@@ -233,6 +241,7 @@ export class DoubleSlider extends HTMLElement {
   get step() {
     return this.store.getState().step;
   }
+
   set step(value) {
     this.store.setState(({ valuemax, valuemin }) => ({
       step: value,
@@ -245,6 +254,7 @@ export class DoubleSlider extends HTMLElement {
   get valuemax() {
     return this.store.getState().valuemax;
   }
+
   set valuemax(value) {
     this.store.setState(({ max, step, valuemin }) => ({
       valuemax: clamp(quantize(value, step), valuemin, max),
@@ -254,6 +264,7 @@ export class DoubleSlider extends HTMLElement {
   get valuemin() {
     return this.store.getState().valuemin;
   }
+
   set valuemin(value) {
     this.store.setState(({ min, step, valuemax }) => ({
       valuemin: clamp(quantize(value, step), min, valuemax),
@@ -263,6 +274,7 @@ export class DoubleSlider extends HTMLElement {
   get disabled() {
     return this.hasAttribute(DISABLED);
   }
+
   set disabled(value) {
     if (value) {
       this.setAttribute(DISABLED, "");
@@ -298,7 +310,7 @@ export class DoubleSlider extends HTMLElement {
       valuemin,
     });
 
-    const shadowRoot = this.attachShadow({ mode: "closed" });
+    const shadowRoot = this.attachShadow({ mode: "open" });
     shadowRoot.appendChild(template.content.cloneNode(true));
 
     this.$min = shadowRoot.querySelector("#thumb-min")!;
@@ -357,7 +369,7 @@ export class DoubleSlider extends HTMLElement {
   // public methods
   layout() {
     this.gBCR = this.getBoundingClientRect();
-    this.store.forceUpdate();
+    this.render(this.store.getState());
   }
 
   // event handlers
@@ -449,7 +461,7 @@ export class DoubleSlider extends HTMLElement {
 
   // utils
   private upgradeProperty(prop: ObservedAttribute) {
-    if (this.hasOwnProperty(prop)) {
+    if (this[prop]) {
       const value = this[prop];
       delete this[prop];
       // @ts-ignore

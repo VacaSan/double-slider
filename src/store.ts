@@ -1,21 +1,21 @@
 function createStore<T extends {}>(initialState: T) {
-  let state: T = initialState;
-  let listeners: Array<(state: T) => void> = [];
+  const state: T = initialState;
+  const listeners: Array<(s: T) => void> = [];
 
-  function setState(partial: Partial<T> | ((state: T) => Partial<T>)) {
+  function setState(partial: Partial<T> | ((s: T) => Partial<T>)) {
     const update = typeof partial === "function" ? partial(state) : partial;
 
-    const shouldUpdate = Object.keys(update).reduce((acc, key) => {
-      return (
+    const shouldUpdate = Object.keys(update).reduce(
+      (acc, key) =>
         acc ||
-        update[key as keyof typeof update] !== state[key as keyof typeof update]
-      );
-    }, false);
+        update[key as keyof typeof update] !==
+          state[key as keyof typeof update],
+      false
+    );
 
     if (!shouldUpdate) return;
 
-    const prevState = Object.assign({}, state);
-    state = Object.assign({}, state, update);
+    Object.assign(state, update);
 
     listeners.forEach(fn => fn(state));
   }
@@ -24,11 +24,7 @@ function createStore<T extends {}>(initialState: T) {
     return state;
   }
 
-  function forceUpdate() {
-    listeners.forEach(fn => fn(state));
-  }
-
-  function connect(fn: (state: T) => void) {
+  function connect(fn: (s: T) => void) {
     listeners.push(fn);
 
     fn(state);
@@ -42,7 +38,6 @@ function createStore<T extends {}>(initialState: T) {
   return Object.freeze({
     setState,
     getState,
-    forceUpdate,
     connect,
   });
 }

@@ -1,28 +1,81 @@
 {
   "name": "double-slider",
-  "version": "2.0.0",
-  "description": "A simple two-thumb slider component",
-  "author": "Vladan Kotarac",
+  "description": "Simple two-thumb slider component following open-wc recommendations",
   "license": "MIT",
-  "source": "src/double-slider.ts",
-  "main": "dist/double-slider.js",
-  "module": "dist/double-slider.module.js",
-  "unpkg": "dist/double-slider.umd.js",
-  "types": "dist/double-slider.d.ts",
-  "scripts": {
-    "build": "microbundle",
-    "start": "microbundle watch",
-    "prepublish": "npm run build",
-    "predeploy": "cd example && npm install && npm run build",
-    "deploy": "gh-pages -d example/dist"
+  "author": "Vladan Kotarac",
+  "version": "3.0.0",
+  "type": "module",
+  "main": "dist/src/double-slider.js",
+  "module": "dist/src/double-slider.js",
+  "exports": {
+    ".": "./dist/src/double-slider.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/VacaSan/double-slider.git"
+  "scripts": {
+    "analyze": "cem analyze",
+    "start": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wds\"",
+    "build": "tsc && npm run analyze -- --exclude dist",
+    "prepublish": "tsc && npm run analyze -- --exclude dist",
+    "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier \"**/*.ts\" --check --ignore-path .gitignore",
+    "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier \"**/*.ts\" --write --ignore-path .gitignore",
+    "test": "tsc && wtr --coverage",
+    "test:watch": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wtr --watch\""
   },
   "devDependencies": {
-    "gh-pages": "^3.1.0",
-    "microbundle": "^0.15.1",
-    "prettier": "^2.8.8"
+    "@custom-elements-manifest/analyzer": "^0.4.17",
+    "@open-wc/eslint-config": "^9.2.1",
+    "@open-wc/testing": "^3.1.6",
+    "@typescript-eslint/eslint-plugin": "^5.48.0",
+    "@typescript-eslint/parser": "^5.48.0",
+    "@web/dev-server": "^0.1.34",
+    "@web/test-runner": "^0.14.0",
+    "concurrently": "^5.3.0",
+    "eslint": "^8.31.0",
+    "eslint-config-prettier": "^8.3.0",
+    "husky": "^4.3.8",
+    "lint-staged": "^10.5.4",
+    "lit": "^2.0.2",
+    "prettier": "^2.4.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.2"
+  },
+  "customElements": "custom-elements.json",
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "@open-wc",
+      "prettier"
+    ],
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "rules": {
+      "no-use-before-define": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error"
+      ],
+      "import/no-unresolved": "off",
+      "import/extensions": [
+        "error",
+        "always",
+        {
+          "ignorePackages": true
+        }
+      ]
+    }
+  },
+  "prettier": {
+    "arrowParens": "avoid",
+    "trailingComma": "es5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

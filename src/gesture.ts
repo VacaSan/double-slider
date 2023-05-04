@@ -12,7 +12,6 @@ export type DragState = {
 };
 
 function addDragHandler(el: HTMLElement, callback: (state: DragState) => void) {
-  let rAF = -1;
   // state
   let active = false;
   let last = false;
@@ -24,19 +23,18 @@ function addDragHandler(el: HTMLElement, callback: (state: DragState) => void) {
   el.addEventListener("touchstart", onDragStart, { passive: false });
 
   function update() {
-    callback &&
-      callback({
-        x,
-        movement: x - initial,
-        initial,
-        active,
-        last,
-        target,
-      });
+    callback?.({
+      x,
+      movement: x - initial,
+      initial,
+      active,
+      last,
+      target,
+    });
 
     if (!active) return;
 
-    rAF = window.requestAnimationFrame(update);
+    window.requestAnimationFrame(update);
   }
 
   function onDragStart(evt: DragEvent) {
@@ -57,7 +55,7 @@ function addDragHandler(el: HTMLElement, callback: (state: DragState) => void) {
     document.addEventListener("touchend", onDragMove, { passive: false });
     document.addEventListener("touchcancel", onDragEnd, { passive: false });
 
-    rAF = window.requestAnimationFrame(update);
+    window.requestAnimationFrame(update);
     evt.preventDefault();
   }
 
