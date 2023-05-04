@@ -155,6 +155,57 @@
       </div>
     </div>
 
-    <script type="module" src="./index.js"></script>
+    <script type="module">
+      import "double-slider";
+
+      window.addEventListener(
+        "load",
+        () => {
+          window.valuemax.value = window.mySlider.valuemax;
+          window.valuemin.value = window.mySlider.valuemin;
+          window.max.value = window.mySlider.max;
+          window.min.value = window.mySlider.min;
+          window.step.value = window.mySlider.step;
+
+          window.step.addEventListener("change", evt => {
+            window.mySlider.step = Number(evt.target.value);
+          });
+
+          window.toggle.addEventListener("change", evt => {
+            window.mySlider.disabled = evt.target.checked;
+          });
+
+          window.valuemax.addEventListener("input", evt => {
+            window.mySlider.valuemax = Number(evt.target.value);
+          });
+
+          window.valuemin.addEventListener("input", evt => {
+            window.mySlider.valuemin = Number(evt.target.value);
+          });
+
+          window.max.addEventListener("input", evt => {
+            window.mySlider.max = Number(evt.target.value);
+          });
+
+          window.min.addEventListener("input", evt => {
+            window.mySlider.min = Number(evt.target.value);
+          });
+
+          window.mySlider.addEventListener("slider:input", evt => {
+            window.valuemax.value = evt.target.valuemax;
+            window.valuemin.value = evt.target.valuemin;
+          });
+
+          window.mySlider.addEventListener("slider:input", () => {
+            console.log("slider:input");
+          });
+
+          window.mySlider.addEventListener("slider:change", () => {
+            console.log("slider:change");
+          });
+        },
+        { once: true }
+      );
+    </script>
   </body>
 </html>

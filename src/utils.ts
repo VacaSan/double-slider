@@ -14,9 +14,8 @@ function quantize(value: number, step: number) {
   if (step) {
     const numSteps = Math.round(value / step);
     return numSteps * step;
-  } else {
-    return value;
   }
+  return value;
 }
 
 export { clamp, interpolate, quantize };

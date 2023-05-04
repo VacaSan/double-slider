@@ -1,14 +1,6 @@
-<div align="center">
-  <h1>double slider</h1>
+# \<double-slider>
 
-  <a href="https://emojipedia.org/apple/ios-13.3/hamburger/">
-    <img
-      src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/320/apple/237/skateboard_1f6f9.png" 
-      alt="burger"
-      width="80"
-      height="80">
-  </a>
-</div>
+> This webcomponent follows the [open-wc](https://github.com/open-wc/open-wc) recommendation.
 
 Double-Slider represents an implementation of a range (two-thumb) slider component. It is based around Material Design's looks and feel, and conforms to the WAI-ARIA [slider authoring practices](https://www.w3.org/TR/wai-aria-practices-1.1/#slidertwothumb).
 
@@ -20,38 +12,28 @@ Double-Slider represents an implementation of a range (two-thumb) slider compone
 - [Methods](#Methods)
 - [Events](#Events)
 - [Customization](#Customization)
+- [Development](#Development)
 - [License](#License)
 
 ## Installation
 
 ```sh
-npm install --save double-slider
+npm i double-slider
 ```
 
 ## Usage
 
 ```html
+<script type="module">
+  import "double-slider";
+</script>
 <double-slider
-  id="price"
   min="0"
   max="100"
   step="5"
   valuemin="25"
   valuemax="75"
 ></double-slider>
-```
-
-then in js
-
-```js
-import "double-slider";
-
-const slider = document.getElementById("price");
-
-slider.addEventListener("slider:change", evt => {
-  console.log("max value is:", evt.target.valuemax);
-  console.log("min value is:", evt.target.valuemin);
-});
 ```
 
 ## Properties
@@ -109,10 +91,54 @@ Recomputes the dimensions and re-lays out the component. This should be called i
 All thematic elements of slider make use of `currentColor`. This lets you use the color value to apply styling to slider.
 
 ```css
-double-slider.fancy-color {
+double-slider {
   color: rebeccapurple;
 }
 ```
+
+## Development
+
+### Linting and formatting
+
+To scan the project for linting and formatting errors, run
+
+```bash
+npm run lint
+```
+
+To automatically fix linting and formatting errors, run
+
+```bash
+npm run format
+```
+
+### Testing with Web Test Runner
+
+To execute a single test run:
+
+```bash
+npm run test
+```
+
+To run the tests in interactive watch mode run:
+
+```bash
+npm run test:watch
+```
+
+### Tooling configs
+
+For most of the tools, the configuration is in the `package.json` to reduce the amount of files in your project.
+
+If you customize the configuration a lot, you can consider moving them to individual files.
+
+### Local Demo with `web-dev-server`
+
+```bash
+npm start
+```
+
+To run a local development server that serves the basic demo located in `demo/index.html`
 
 ## License
 
