@@ -25,15 +25,6 @@ type ObservedAttribute =
   | typeof VALUE_MIN
   | typeof DISABLED;
 
-const observedAttributes: Array<ObservedAttribute> = [
-  MAX,
-  MIN,
-  STEP,
-  VALUE_MAX,
-  VALUE_MIN,
-  DISABLED,
-];
-
 type DoubleSliderEvent = typeof EVT_CHANGE | typeof EVT_INPUT;
 const template = doc.createElement("template");
 
@@ -283,8 +274,8 @@ export class DoubleSlider extends HTMLElement {
     }
   }
 
-  static get observedAttributes() {
-    return observedAttributes;
+  static get observedAttributes(): Array<ObservedAttribute> {
+    return [MAX, MIN, STEP, VALUE_MAX, VALUE_MIN, DISABLED];
   }
 
   constructor() {
@@ -318,9 +309,9 @@ export class DoubleSlider extends HTMLElement {
     this.$track = shadowRoot.querySelector("#track")!;
 
     this.render = this.render.bind(this);
-    this.onDrag = this.onDrag.bind(this);
-    this.onKeyDown = this.onKeyDown.bind(this);
-    this.onResize = this.onResize.bind(this);
+    this.handleDrag = this.handleDrag.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleResize = this.handleResize.bind(this);
   }
 
   attributeChangedCallback(
@@ -339,7 +330,7 @@ export class DoubleSlider extends HTMLElement {
 
   connectedCallback() {
     // TODO: check if this.isConnected
-    observedAttributes.forEach(prop => this.upgradeProperty(prop));
+    DoubleSlider.observedAttributes.forEach(prop => this.upgradeProperty(prop));
 
     this.gBCR = this.getBoundingClientRect();
 
@@ -347,13 +338,13 @@ export class DoubleSlider extends HTMLElement {
     this.unsubscribe = this.store.connect(this.render);
 
     // add event handlers
-    this.$max.addEventListener("keydown", this.onKeyDown);
-    this.$min.addEventListener("keydown", this.onKeyDown);
+    this.$max.addEventListener("keydown", this.handleKeyDown);
+    this.$min.addEventListener("keydown", this.handleKeyDown);
 
-    addDragHandler(this.$max, this.onDrag);
-    addDragHandler(this.$min, this.onDrag);
+    addDragHandler(this.$max, this.handleDrag);
+    addDragHandler(this.$min, this.handleDrag);
 
-    window.addEventListener("resize", this.onResize);
+    window.addEventListener("resize", this.handleResize);
   }
 
   disconnectedCallback() {
@@ -363,7 +354,7 @@ export class DoubleSlider extends HTMLElement {
     // cleans up listeners, so you don’t have to worry about it.
     // However, if you add a listener to the global window object,
     // you’re responsible for removing the listener
-    window.removeEventListener("resize", this.onResize);
+    window.removeEventListener("resize", this.handleResize);
   }
 
   // public methods
@@ -373,11 +364,11 @@ export class DoubleSlider extends HTMLElement {
   }
 
   // event handlers
-  private onResize() {
+  private handleResize() {
     this.layout();
   }
 
-  private onDrag({ target, last, initial, movement }: DragState) {
+  private handleDrag({ target, last, initial, movement }: DragState) {
     if (!isHTMLElement(target)) return;
 
     const name = target.dataset.name as typeof VALUE_MAX | typeof VALUE_MIN;
@@ -403,7 +394,7 @@ export class DoubleSlider extends HTMLElement {
     if (last) this.dispatch(EVT_CHANGE);
   }
 
-  private onKeyDown(evt: KeyboardEvent) {
+  private handleKeyDown(evt: KeyboardEvent) {
     if (!isHTMLElement(evt.currentTarget)) return;
 
     const name = evt.currentTarget.dataset.name as
