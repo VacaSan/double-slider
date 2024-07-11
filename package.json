@@ -5,10 +5,11 @@
   "author": "Vladan Kotarac",
   "version": "3.0.0",
   "type": "module",
-  "main": "dist/src/double-slider.js",
-  "module": "dist/src/double-slider.js",
+  "main": "dist/src/index.js",
+  "module": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/double-slider.js"
+    ".": "./dist/src/index.js",
+    "./double-slider.js": "./dist/src/double-slider.js"
   },
   "scripts": {
     "analyze": "cem analyze",

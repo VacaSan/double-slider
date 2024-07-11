@@ -25,7 +25,7 @@ npm i double-slider
 
 ```html
 <script type="module">
-  import "double-slider";
+  import "double-slider/double-slider.js";
 </script>
 <double-slider
   min="0"

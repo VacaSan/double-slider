@@ -1,8 +1,43 @@
-import { expect } from "@open-wc/testing";
+import { expect, fixture, html } from "@open-wc/testing";
+import { DoubleSlider } from "../src/DoubleSlider.js";
 import "../src/double-slider.js";
 
 describe("double-slider", () => {
-  it("runs tests", async () => {
-    expect(true).to.equal(true);
+  it("is accessible", async () => {
+    const el = await fixture<DoubleSlider>(
+      html`<double-slider></double-slider>`
+    );
+
+    await expect(el).shadowDom.to.be.accessible();
+  });
+
+  it("has default attributes", async () => {
+    const el = await fixture<DoubleSlider>(
+      html`<double-slider></double-slider>`
+    );
+
+    expect(el.max).to.equal(100);
+    expect(el.min).to.equal(0);
+    expect(el.step).to.equal(0);
+    expect(el.valuemax).to.equal(100);
+    expect(el.valuemin).to.equal(0);
+  });
+
+  it("updates attributes correctly", async () => {
+    const el = await fixture<DoubleSlider>(
+      html`<double-slider
+        max="200"
+        min="50"
+        step="5"
+        valuemax="150"
+        valuemin="75"
+      ></double-slider>`
+    );
+
+    expect(el.max).to.equal(200);
+    expect(el.min).to.equal(50);
+    expect(el.step).to.equal(5);
+    expect(el.valuemax).to.equal(150);
+    expect(el.valuemin).to.equal(75);
   });
 });
