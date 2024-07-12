@@ -319,7 +319,7 @@ export class DoubleSlider extends HTMLElement {
 
   attributeChangedCallback(
     name: ObservedAttribute,
-    oldValue: string,
+    _oldValue: string,
     newValue: string
   ) {
     if (name === DISABLED) {

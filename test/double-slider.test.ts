@@ -40,4 +40,36 @@ describe("double-slider", () => {
     expect(el.valuemax).to.equal(150);
     expect(el.valuemin).to.equal(75);
   });
+
+  it("updates value on keyboard interaction", async () => {
+    const el = await fixture<DoubleSlider>(
+      html`<double-slider></double-slider>`
+    );
+
+    const thumbMin = el.shadowRoot!.querySelector(
+      "#thumb-min"
+    ) as HTMLButtonElement;
+
+    thumbMin.focus();
+    thumbMin.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
+    );
+
+    expect(el.valuemin).to.be.gt(0);
+  });
+
+  it("handles disabled attribute", async () => {
+    const el = await fixture<DoubleSlider>(
+      html`<double-slider disabled></double-slider>`
+    );
+    const thumbMin = el.shadowRoot!.querySelector(
+      "#thumb-min"
+    ) as HTMLButtonElement;
+    const thumbMax = el.shadowRoot!.querySelector(
+      "#thumb-max"
+    ) as HTMLButtonElement;
+
+    expect(thumbMin.disabled).to.be.true;
+    expect(thumbMax.disabled).to.be.true;
+  });
 });
