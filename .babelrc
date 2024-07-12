@@ -1,7 +1,0 @@
-{
-  "presets": ["env"],
-  "plugins": [
-    "babel-plugin-add-module-exports",
-    "injected-css/babel"
-  ]
-}
